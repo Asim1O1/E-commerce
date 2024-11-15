@@ -31,7 +31,7 @@ const productSchema = new mongoose.Schema(
     },
     cloudinaryId: {
       type: String,
-      required: true, // This is the field for Cloudinary's public_id
+      required: true, 
     },
   },
   { timestamps: true }

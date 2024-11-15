@@ -1,7 +1,6 @@
-
 export const createResponse = (
-  statusCode,
-  isSuccess,
+  statusCode = 500,
+  isSuccess = false,
   errorMessage = [],
   result = null
 ) => {

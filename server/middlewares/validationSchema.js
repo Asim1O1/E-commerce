@@ -57,3 +57,45 @@ export const loginUserSchema = Joi.object({
     "any.required": `"password" is a required field`,
   }),
 });
+
+// Product validation schema
+export const validateProduct = Joi.object({
+  name: Joi.string().min(3).max(100).required().messages({
+    "string.base": `"name" should be a type of 'text'`,
+    "string.empty": `"name" cannot be an empty field`,
+    "string.min": `"name" should have a minimum length of {#limit}`,
+    "any.required": `"name" is a required field`,
+  }),
+
+  description: Joi.string().min(10).max(500).required().messages({
+    "string.base": `"description" should be a type of 'text'`,
+    "string.empty": `"description" cannot be an empty field`,
+    "string.min": `"description" should have a minimum length of {#limit}`,
+    "any.required": `"description" is a required field`,
+  }),
+
+  price: Joi.number().positive().required().messages({
+    "number.base": `"price" should be a type of 'number'`,
+    "number.positive": `"price" should be a positive number`,
+    "any.required": `"price" is a required field`,
+  }),
+
+  category: Joi.string().min(3).max(50).required().messages({
+    "string.base": `"category" should be a type of 'text'`,
+    "string.empty": `"category" cannot be an empty field`,
+    "string.min": `"category" should have a minimum length of {#limit}`,
+    "any.required": `"category" is a required field`,
+  }),
+
+  stock: Joi.number().integer().min(0).required().messages({
+    "number.base": `"stock" should be a type of 'number'`,
+    "number.integer": `"stock" should be an integer`,
+    "number.min": `"stock" cannot be less than {#limit}`,
+    "any.required": `"stock" is a required field`,
+  }),
+
+  // Optionally you can validate the image file if it's provided in a different way (not with Multer)
+  // image: Joi.string().uri().optional().messages({
+  //   "string.base": `"image" should be a valid URI`,
+  // }),
+});

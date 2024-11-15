@@ -5,7 +5,7 @@ import {
   registerUserSchema,
   loginUserSchema,
 } from "../middlewares/validationSchema.js";
-import { generateAccessToken } from "../utils/auth.js";
+import { generateAccessToken } from "../utils/generateAuthToken.js";
 import { createResponse } from "../utils/responseHelper.js";
 
 export const userRegister = async (req, res, next) => {
@@ -34,13 +34,10 @@ export const userRegister = async (req, res, next) => {
     const userObj = newUser.toObject();
     delete userObj.password;
 
-    const accessToken = generateAccessToken(newUser._id);
-
     return res.status(200).json(
       createResponse(200, true, [], {
         message: "User registered successfully",
         user_data: userObj,
-        accessToken,
       })
     );
   } catch (error) {

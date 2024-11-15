@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import _config from "./utils/config.js";
 import globalErrorHandler from "./middlewares/globalErrorHandler.js";
 import authRoute from "./routes/auth.route.js";
+import productRoute from "./routes/product.route.js";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use("/api/auth", authRoute);
+app.use("/api/products", productRoute);
 
 app.get("/", (req, res) => {
   res.send("E-commerce platform running...");

@@ -2,6 +2,7 @@ import cloudinary from "../imageUpload/cloudinaryConfig.js";
 import { uploadImageToCloudinary } from "../imageUpload/fileUpload.js";
 import { validateProduct } from "../middlewares/validationSchema.js";
 import Product from "../models/product.model.js";
+import { paginate } from "../utils/pagination.js";
 import { createResponse } from "../utils/responseHelper.js";
 
 // CREATE PRODUCT
@@ -41,7 +42,7 @@ export const createProduct = async (req, res) => {
     });
 
     await newProduct.save();
-    console.log("Reachhed the code after succesfull product save");
+    console.log("Reached the code after succesfull product save");
 
     return res.status(201).json(
       createResponse(201, true, [], {
@@ -79,8 +80,17 @@ export const createProduct = async (req, res) => {
 
 export const getAllProduct = async (req, res) => {
   try {
-    const products = await Product.find();
-    return res.status(200).json(createResponse(200, true, [], products));
+    const { page = 1, limit = 10, category } = req.query;
+    const filter = category ? { category } : {};
+    const paginatedProducts = await paginate(
+      Product,
+      filter,
+      parseInt(page),
+      parseInt(limit)
+    );
+    return res
+      .status(200)
+      .json(createResponse(200, true, [], paginatedProducts));
   } catch (error) {
     console.error("Error:", error.message);
     return res
@@ -140,22 +150,18 @@ export const updateProduct = async (req, res) => {
       new: true,
     });
 
-    return res
-      .status(200)
-      .json(
-        createResponse(
-          200,
-          true,
-          "Product updated successfully",
-          updatedProduct
-        )
-      );
+    return res.status(200).json(
+      createResponse(200, true, [], {
+        message: "Product updated successfully",
+        product_data: updatedProduct,
+      })
+    );
   } catch (error) {
     console.error("Error:", error.message);
     return res
       .status(500)
       .json(
-        createResponse(500, false, "Server error: Unable to update product")
+        createResponse(500, false, "Server error: Unable to update product", [])
       );
   }
 };
@@ -170,7 +176,7 @@ export const deleteProduct = async (req, res) => {
     if (!product) {
       return res
         .status(404)
-        .json(createResponse(404, false, "Product not found"));
+        .json(createResponse(404, false, "Product not found", []));
     }
     console.log("The product is", product);
     await cloudinary.v2.uploader.destroy(product.cloudinaryId);
@@ -179,7 +185,7 @@ export const deleteProduct = async (req, res) => {
 
     return res
       .status(200)
-      .json(createResponse(200, true, "Product deleted successfully"));
+      .json(createResponse(200, true, [], "Product deleted successfully"));
   } catch (error) {
     console.error("Error:", error.message);
     return res

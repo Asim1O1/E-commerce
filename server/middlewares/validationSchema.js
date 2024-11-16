@@ -93,9 +93,5 @@ export const validateProduct = Joi.object({
     "number.min": `"stock" cannot be less than {#limit}`,
     "any.required": `"stock" is a required field`,
   }),
-
-  // Optionally you can validate the image file if it's provided in a different way (not with Multer)
-  // image: Joi.string().uri().optional().messages({
-  //   "string.base": `"image" should be a valid URI`,
-  // }),
 });
+

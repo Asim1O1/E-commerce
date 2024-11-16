@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import _config from "../utils/config.js";
 
 import User from "../models/user.model.js";
 import { createResponse } from "../utils/responseHelper.js";
@@ -16,10 +17,12 @@ const protectRoute = async (req, res, next) => {
         );
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_KEY);
+    const decoded = jwt.verify(token, _config.jwt_key);
+    console.log("The decode is", decoded);
 
     // Find the user in the database
-    const user = await User.findById(decoded.userId).select("-password");
+    const user = await User.findById(decoded.sub).select("-password");
+    console.log("The user is", user);
     if (!user) {
       return res
         .status(404)

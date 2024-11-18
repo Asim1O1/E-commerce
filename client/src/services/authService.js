@@ -10,14 +10,16 @@ const register = async (userData) => {
     );
     return response.data;
   } catch (error) {
-    console.log("Th error is", error);
+    console.log("Th error is.............", error);
     console.log("The error is", error.response?.data?.ErrorMessage[0].message);
     console.error(
       "Registration error:",
       error.response?.data?.ErrorMessage || error.message
     );
     return (
-      error.response?.data?.ErrorMessage[0].message || "Registration failed"
+      error.response?.data?.ErrorMessage[0].message ||
+      error.message ||
+      "Registration failed due to internal server error"
     );
   }
 };
@@ -39,7 +41,11 @@ const login = async (credentials) => {
       "Login error:",
       error.response?.data?.ErrorMessage[0].message || error.message
     );
-    throw new Error(error.response?.data || "Login failed");
+    return (
+      error.response?.data?.ErrorMessage[0].message ||
+      error.message ||
+      "Login failed due to internal server error"
+    );
   }
 };
 

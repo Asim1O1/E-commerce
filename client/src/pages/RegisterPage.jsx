@@ -4,21 +4,33 @@ import { ToastContainer } from "react-toastify";
 
 const RegisterPage = () => {
   return (
-    <div>
-      <div className="h-screen flex items-center justify-center w-full bg-gray-100">
-        <div className="flex justify-evenly bg-white h-[600px] items-center w-[1000px] rounded-3xl shadow-2xl">
-          <div className="ml-10 w-5/12 h-5/6 px-3 rounded-3xl shadow-3xl"></div>
-          <div className="w-7/12 mr-7 h-5/6 p-6 pb-4 bg-white flex flex-col justify-center">
-            <h2 className="text-3xl font-bold mb-4 text-gray-700">Sign Up</h2>
-            <RegisterForm />
-            <p className="text-center text-sm">
-              Already have an account?
-              <a href="/login" className="text-red-500 cursor-pointer">
-                Login
-              </a>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="flex bg-white h-[600px] w-[1000px] rounded-3xl shadow-2xl">
+        <div className="w-5/12 h-full p-8 bg-gradient-to-br from-blue-600 to-blue-800 rounded-l-3xl flex flex-col justify-center items-center">
+          <div className="text-white text-center">
+            <h1 className="text-3xl font-bold mb-4">Welcome Back!</h1>
+            <p className="text-blue-100 mb-6">
+              Start your journey with us today and discover amazing
+              possibilities.
             </p>
-            <ToastContainer />
           </div>
+        </div>
+
+        <div className="w-7/12 h-full p-8 flex flex-col justify-center">
+          <h2 className="text-3xl font-bold mb-6 text-gray-800">
+            Create Account
+          </h2>
+          <RegisterForm />
+          <p className="text-center text-sm mt-6 text-gray-600">
+            Already have an account?{" "}
+            <a
+              href="/login"
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Sign in
+            </a>
+          </p>
+          <ToastContainer />
         </div>
       </div>
     </div>

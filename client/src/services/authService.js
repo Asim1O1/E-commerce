@@ -70,7 +70,7 @@ const logout = async () => {
       "Logout error:",
       error.response?.data?.message || error.message
     );
-    throw new Error("Logout failed");
+    return error || "Logout failed";
   }
 };
 

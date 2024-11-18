@@ -1,16 +1,22 @@
 import React, { useState } from "react";
 import { Mail, Lock } from "lucide-react";
-
+import { toast } from "react-toastify";
+import { loginUser } from "../../features/auth/authSlice";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 const LoginForm = () => {
-  const [formData, setFormData] = useState({
+  const [credentials, setCredentials] = useState({
     email: "",
     password: "",
   });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { email, password } = credentials;
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
 
   const togglePasswordVisibility = () => {
@@ -20,9 +26,22 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // Add your login logic here
+
+    if (!email || !password) {
+      toast.error("Please enter your email and password to login");
+    }
+
     try {
-      // Login implementation
+      const response = await dispatch(loginUser(credentials));
+      if (
+        response.payload.StatusCode === 200 &&
+        response.payload.IsSuccess === true
+      ) {
+        navigate("/");
+      } else {
+        console.log("Gone to else");
+        toast.error(response.payload || "Server Error. Please try again.");
+      }
     } catch (error) {
       console.error("Login error:", error);
     } finally {
@@ -32,7 +51,11 @@ const LoginForm = () => {
 
   return (
     <div className="w-full">
-      <form className="space-y-6" onSubmit={handleSubmit}>
+      <form
+        className="space-y-6"
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+      >
         {/* Email Input */}
         <div className="relative group">
           <div className="absolute left-3 top-1/2 -mt-2.5 text-gray-400 group-focus-within:text-blue-600 transition-colors">
@@ -42,8 +65,7 @@ const LoginForm = () => {
             type="email"
             id="email"
             name="email"
-            value={formData.email}
-            onChange={handleChange}
+            value={credentials.email}
             className="w-full px-10 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-transparent peer"
             placeholder="Email"
             required
@@ -65,8 +87,7 @@ const LoginForm = () => {
             type={showPassword ? "text" : "password"}
             id="password"
             name="password"
-            value={formData.password}
-            onChange={handleChange}
+            value={credentials.password}
             className="w-full px-10 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-transparent peer"
             placeholder="Password"
             required
@@ -116,16 +137,6 @@ const LoginForm = () => {
 
         {/* Remember Me and Forgot Password */}
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="remember"
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="remember" className="ml-2 text-gray-600">
-              Remember me
-            </label>
-          </div>
           <a
             href="/forgot-password"
             className="text-blue-600 hover:text-blue-700 font-medium"
@@ -153,4 +164,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;   
+export default LoginForm;

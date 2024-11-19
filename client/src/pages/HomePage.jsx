@@ -1,16 +1,6 @@
 import React, { useState } from "react";
-import {
-  ShoppingCart,
-  Search,
-  User,
-  ChevronLeft,
-  ChevronRight,
-  Star,
-  Facebook,
-  Twitter,
-  Instagram,
-} from "lucide-react";
-
+import { ChevronLeft, ChevronRight, Facebook, Instagram, Star, Twitter } from "lucide-react";
+import NavBar from "../components/common/NavBar";
 const EcommercePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -55,48 +45,8 @@ const EcommercePage = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="text-2xl font-bold text-gray-900">LOGO</div>
 
-            <nav className="hidden md:flex space-x-8">
-              <a href="#" className="text-gray-700 hover:text-gray-900">
-                Home
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">
-                Shop
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">
-                Categories
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">
-                About
-              </a>
-            </nav>
-
-            <div className="flex items-center space-x-6">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="pl-10 pr-4 py-2 border rounded-full w-48"
-                />
-                <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-              </div>
-
-              <User className="h-6 w-6 text-gray-700 cursor-pointer" />
-              <div className="relative">
-                <ShoppingCart className="h-6 w-6 text-gray-700 cursor-pointer" />
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  3
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
+<NavBar/>
       {/* Hero Carousel */}
       <div className="relative h-96 bg-gray-100">
         <div className="absolute inset-0 flex items-center justify-center">

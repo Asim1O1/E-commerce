@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Mail, Lock } from "lucide-react";
 import { toast } from "react-toastify";
 import { loginUser } from "../../features/auth/authSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 const LoginForm = () => {
   const [credentials, setCredentials] = useState({
@@ -33,10 +33,14 @@ const LoginForm = () => {
 
     try {
       const response = await dispatch(loginUser(credentials));
+
+      console.log("The response in the login form is", response);
+
       if (
         response.payload.StatusCode === 200 &&
         response.payload.IsSuccess === true
       ) {
+        console.log("The response is", response);
         navigate("/");
       } else {
         console.log("Gone to else");
@@ -56,7 +60,6 @@ const LoginForm = () => {
         onChange={handleChange}
         onSubmit={handleSubmit}
       >
-        {/* Email Input */}
         <div className="relative group">
           <div className="absolute left-3 top-1/2 -mt-2.5 text-gray-400 group-focus-within:text-blue-600 transition-colors">
             <Mail size={20} />

@@ -1,6 +1,7 @@
 // App.js
 import React from "react";
-import { Routes, Route, BrowserRouter } from "react-router-dom";
+import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import "react-toastify/dist/ReactToastify.css";
 
@@ -14,23 +15,50 @@ import AdminDashboard from "./components/admin/AdminDash";
 import PageNotFound from "./pages/404 Page";
 import AdminProducts from "./components/admin/AdminProducts";
 import AdminLayout from "./pages/AdminLayout";
+import ProtectedRoute from "./utils/ProtectedRoute";
 
 function App() {
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  console.log("The is authenticate is", isAuthenticated);
+  const role = user?.role;
+
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute rolesAllowed={["user"]}>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/login"
+          element={isAuthenticated ? <Navigate to="/" /> : <LoginPage />}
+        />
+
+        <Route
+          path="/register"
+          element={isAuthenticated ? <Navigate to="/" /> : <RegisterPage />}
+        />
         <Route path="/productDetail" element={<ProductDetailPage />} />
         <Route path="/products" element={<ProductsPage />} />
-        <Route path="/admin" element={<AdminLayout />}>
+
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute rolesAllowed={["admin"]}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
-          {/* <Route path="orders" element={<OrdersPage />} />
-          <Route path="settings" element={<SettingsPage />} /> */}
         </Route>
-        <Route path="*" element={<PageNotFound />}></Route>
+
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </BrowserRouter>
   );

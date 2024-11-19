@@ -32,7 +32,6 @@ const AdminLayout = () => {
 
   return (
     <div className="flex h-screen">
-      {/* Sidebar */}
       <aside className="w-64 bg-gray-800 text-white p-4">
         <nav>
           <ul className="space-y-2">

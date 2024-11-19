@@ -10,7 +10,6 @@ const register = async (userData) => {
     );
     return response.data;
   } catch (error) {
-    console.log("Th error is.............", error);
     console.log("The error is", error.response?.data?.ErrorMessage[0].message);
     console.error(
       "Registration error:",
@@ -29,7 +28,10 @@ const login = async (credentials) => {
   try {
     const response = await axios.post(
       `${Base_Backend_Url}/api/auth/login`,
-      credentials
+      credentials,
+      {
+        withCredentials: true,
+      }
     );
     const { accessToken } = response.data;
     if (accessToken) {
@@ -37,6 +39,7 @@ const login = async (credentials) => {
     }
     return response.data;
   } catch (error) {
+    console.log("The errror wjile loggin in is ", error);
     console.error(
       "Login error:",
       error.response?.data?.ErrorMessage[0].message || error.message
@@ -61,16 +64,19 @@ const logout = async () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          withCredentials: true,
         }
       );
     }
-    localStorage.removeItem("accessToken");
   } catch (error) {
     console.error(
       "Logout error:",
       error.response?.data?.message || error.message
     );
-    return error || "Logout failed";
+  } finally {
+    localStorage.removeItem("accessToken");
+    // Redirect user to the login page
+    window.location.href = "/login";
   }
 };
 

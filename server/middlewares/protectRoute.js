@@ -6,8 +6,7 @@ import { createResponse } from "../utils/responseHelper.js";
 
 const protectRoute = async (req, res, next) => {
   try {
-    // Extract the token from the Authorization header or req.jwt
-    const token = req.headers.authorization?.split(" ")[1];
+    const token = req.cookies?.accessToken;
 
     if (!token) {
       return res
@@ -17,8 +16,9 @@ const protectRoute = async (req, res, next) => {
         );
     }
 
+    // Verify the token
     const decoded = jwt.verify(token, _config.jwt_key);
-    console.log("The decode is", decoded);
+    console.log("The decoded token is", decoded);
 
     // Find the user in the database
     const user = await User.findById(decoded.sub).select("-password");

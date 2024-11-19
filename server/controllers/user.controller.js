@@ -1,11 +1,14 @@
 import bcrypt from "bcryptjs";
-
+import cookie from "cookie";
 import User from "../models/user.model.js";
 import {
   registerUserSchema,
   loginUserSchema,
 } from "../middlewares/validationSchema.js";
-import { generateAccessToken } from "../utils/generateAuthToken.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../utils/generateAuthToken.js";
 import { createResponse } from "../utils/responseHelper.js";
 
 export const userRegister = async (req, res, next) => {
@@ -73,15 +76,30 @@ export const userLogin = async (req, res, next) => {
     }
 
     const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
 
     const userObj = user.toObject();
     delete userObj.password;
+
+    // Set cookies
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 30 * 60 * 1000,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
 
     return res.status(200).json(
       createResponse(200, true, [], {
         message: "Login successful",
         user_data: userObj,
-        accessToken,
       })
     );
   } catch (error) {
@@ -99,7 +117,18 @@ export const userLogin = async (req, res, next) => {
 
 export const userLogout = async (req, res, next) => {
   try {
-    // Invalidate tokens client-side by instructing the client to remove tokens
+    // Clear cookies
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
     return res
       .status(200)
       .json(

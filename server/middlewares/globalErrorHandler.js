@@ -31,4 +31,8 @@ const globalErrorHandler = (err, req, res, next) => {
     .json(createErrorResponse(statusCode, errorMessage, errorStack));
 };
 
+export const notFoundHandler = (req, res, next) => {
+  res.status(404).json(createErrorResponse(404, "Not Found"));
+};
+
 export default globalErrorHandler;

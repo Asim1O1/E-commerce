@@ -1,6 +1,5 @@
 import { createResponse } from "../utils/responseHelper.js";
 
-// Role-based authorization middleware
 export const authorizeRole = (requiredRole) => {
   return (req, res, next) => {
     try {
@@ -26,7 +25,6 @@ export const authorizeRole = (requiredRole) => {
         );
       }
 
-      // If the role is authorized, proceed to the next middleware or route handler
       next();
     } catch (error) {
       console.error("Authorization error:", error);

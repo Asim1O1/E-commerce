@@ -1,7 +1,6 @@
-// App.js
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import "react-toastify/dist/ReactToastify.css";
 
@@ -15,22 +14,27 @@ import AdminDashboard from "./components/admin/AdminDash";
 import PageNotFound from "./pages/404 Page";
 import AdminProducts from "./components/admin/AdminProducts";
 import AdminLayout from "./pages/AdminLayout";
-import ProtectedRoute from "./utils/ProtectedRoute";
+import { checkAuth } from "./features/auth/authSlice";
+import CheckAuth from "./utils/ProtectedRoute";
 
 function App() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
-  console.log("The is authenticate is", isAuthenticated);
-  const role = user?.role;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
 
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public routes */}
         <Route
           path="/"
           element={
-            <ProtectedRoute rolesAllowed={["user"]}>
+            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
               <HomePage />
-            </ProtectedRoute>
+            </CheckAuth>
           }
         />
 
@@ -38,26 +42,28 @@ function App() {
           path="/login"
           element={isAuthenticated ? <Navigate to="/" /> : <LoginPage />}
         />
-
         <Route
           path="/register"
           element={isAuthenticated ? <Navigate to="/" /> : <RegisterPage />}
         />
+
         <Route path="/productDetail" element={<ProductDetailPage />} />
         <Route path="/products" element={<ProductsPage />} />
 
+        {/* Admin Routes */}
         <Route
           path="/admin"
           element={
-            <ProtectedRoute rolesAllowed={["admin"]}>
+            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
               <AdminLayout />
-            </ProtectedRoute>
+            </CheckAuth>
           }
         >
           <Route index element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
         </Route>
 
+        {/* 404 */}
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </BrowserRouter>

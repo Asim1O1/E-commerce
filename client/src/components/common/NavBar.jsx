@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Search, ShoppingCart, User, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../features/auth/authSlice";
+import { checkAuth } from "../../features/auth/authSlice";
 
 const NavBar = () => {
   const dispatch = useDispatch();
@@ -10,6 +11,12 @@ const NavBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { isAuthenticated } = useSelector((state) => state.auth);
+  console.log("The auth status is", isAuthenticated);
+  useEffect(() => {
+    if (!isAuthenticated) {
+      dispatch(checkAuth());
+    }
+  }, [dispatch, isAuthenticated]);
   const handleLogout = () => {
     dispatch(logoutUser());
   };

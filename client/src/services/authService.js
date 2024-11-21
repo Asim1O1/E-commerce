@@ -51,35 +51,42 @@ const login = async (credentials) => {
     );
   }
 };
-
 // LOGOUT SERVICE
 const logout = async () => {
   try {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      await axios.post(
-        `${Base_Backend_Url}/api/auth/logout`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        }
-      );
-    }
+    await axios.post(
+      `${Base_Backend_Url}/api/auth/logout`,
+      {},
+      {
+        withCredentials: true,
+      }
+    );
   } catch (error) {
     console.error(
-      "Logout error:",
-      error.response?.data?.message || error.message
+      "Logout failed:",
+      error.response.data?.ErrorMessage[0].message || error.message
     );
-  } finally {
-    localStorage.removeItem("accessToken");
-    // Redirect user to the login page
-    window.location.href = "/login";
+    return (
+      error.response?.data?.ErrorMessage[0].message ||
+      error.message ||
+      "Logout failed due to internal server error"
+    );
   }
 };
 
+// CHECK AUTH SERVICE
+export const checkAuth = async () => {
+  try {
+    const response = await axios.get(`${Base_Backend_Url}/api/auth/checkAuth`, {
+      withCredentials: true,
+    });
+    console.log("THE CHECK AUTHHHHHHHHHHHHH", response);
+    return response.data;
+  } catch (error) {
+    console.error("CheckAuth error:", error.message);
+    throw new Error(error.response?.data || "Authentication check failed");
+  }
+};
 const authService = {
   register,
   login,

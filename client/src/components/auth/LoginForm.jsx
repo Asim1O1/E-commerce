@@ -41,6 +41,7 @@ const LoginForm = () => {
         response.payload.IsSuccess === true
       ) {
         console.log("The response is", response);
+        console.log("Navigating to home page....");
         navigate("/");
       } else {
         console.log("Gone to else");

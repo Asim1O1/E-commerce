@@ -6,10 +6,10 @@ export const loginUser = createAsyncThunk(
   "auth/login",
   async (credentials, { rejectWithValue }) => {
     try {
-      return await authService.login(credentials);
+      const response = await authService.login(credentials);
+      return response;
     } catch (error) {
-      console.log("Th errorrrrrrrrrrrrrrrrr is", error);
-      return rejectWithValue(error || "Login failed");
+      return rejectWithValue(error.response?.data || "Login failed");
     }
   }
 );
@@ -18,25 +18,53 @@ export const registerUser = createAsyncThunk(
   "auth/register",
   async (userData, { rejectWithValue }) => {
     try {
-      return await authService.register(userData);
+      const response = await authService.register(userData);
+      return response;
     } catch (error) {
-      console.log("Th error is", error);
-      return rejectWithValue(error || "Registration failed");
+      return rejectWithValue(error.response?.data || "Registration failed");
     }
   }
 );
 
-export const logoutUser = createAsyncThunk("auth/logout", async () => {
-  await authService.logout();
-});
+export const checkAuth = createAsyncThunk(
+  "auth/checkAuth",
+  async (_, { rejectWithValue }) => {
+    try {
+      console.log("Reached the checkAuth");
+      const response = await authService.checkAuth();
+      console.log("The response in the checkAuth is", response);
+      return response;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "Authentication check failed"
+      );
+    }
+  }
+);
 
+export const logoutUser = createAsyncThunk(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await authService.logout();
+      localStorage.removeItem("authToken");
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Logout failed");
+    }
+  }
+);
+
+const initialState = {
+  isAuthenticated: false,
+  isLoading: false,
+  user: null,
+};
+
+// Auth slice
 const authSlice = createSlice({
   name: "auth",
-  initialState: {
-    isAuthenticated: false,
-    isLoading: false,
-    user: null,
-  },
+  initialState,
   reducers: {
     resetAuthState: (state) => {
       state.isAuthenticated = false;
@@ -46,46 +74,59 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-
+      // Handling user login
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.isAuthenticated = action.payload.IsSuccess;
-        console.log("The logi usr is", action.payload);
+        console.log("The action payload in the login is", action.payload);
+        state.isAuthenticated = true;
         state.user = action.payload.IsSuccess
-          ? action.payload.Result.user_data
+          ? action.payload.Result?.user_data
           : null;
-
         state.isLoading = false;
-        localStorage.setItem("authToken", action.payload.token);
       })
-      .addCase(loginUser.rejected, (state, action) => {
+      .addCase(loginUser.rejected, (state) => {
         state.isLoading = false;
         state.user = null;
       })
-
       // Handling registerUser
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
+      .addCase(registerUser.fulfilled, (state) => {
         state.isAuthenticated = true;
-        state.user = null;
         state.isLoading = false;
+        state.user = null;
       })
-      .addCase(registerUser.rejected, (state, action) => {
+      .addCase(registerUser.rejected, (state) => {
         state.isLoading = false;
         state.isAuthenticated = false;
         state.user = null;
       })
-
+      // Handling checkAuth
+      .addCase(checkAuth.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        console.log("The action payload in the check atuh", action.payload);
+        state.isAuthenticated = action.payload.IsSuccess;
+        state.user = action.payload.IsSuccess
+          ? action.payload.Result?.user_data
+          : null;
+        state.isLoading = false;
+      })
+      .addCase(checkAuth.rejected, (state, action) => {
+        console.log("The action payload in the check auth isd", action.payload);
+        state.isLoading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+      })
       // Handling logoutUser
       .addCase(logoutUser.fulfilled, (state) => {
         state.isAuthenticated = false;
         state.user = null;
         state.isLoading = false;
-        localStorage.removeItem("accessToken");
       });
   },
 });

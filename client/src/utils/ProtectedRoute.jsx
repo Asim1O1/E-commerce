@@ -1,29 +1,49 @@
-import React from "react";
-import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
-import PropTypes from "prop-types"; // Import PropTypes for prop validation
 
-const ProtectedRoute = ({ children, rolesAllowed }) => {
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
-
-  // If the user is not authenticated, redirect to the login page
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+function CheckAuth({ isAuthenticated, user, children }) {
+  // If the user is authenticated but trying to access restricted pages.
+  if (isAuthenticated) {
+    // Redirect based on role if user is authenticated
+    if (user?.role === "admin") {
+      // If admin, allow access to admin pages
+      if (window.location.pathname.includes("/admin")) {
+        return <>{children}</>; // Render the admin page
+      }
+      return <Navigate to="/admin" />; // Redirect to admin page if not already there
+    } else {
+      // If not admin, redirect to homepage
+      if (window.location.pathname !== "/") {
+        return <Navigate to="/" />; // Redirect to homepage
+      }
+      return <>{children}</>; // Render the children (HomePage for non-admins)
+    }
   }
 
-  // If the user does not have the necessary role, redirect to the homepage or another page
-  if (rolesAllowed && !rolesAllowed.includes(user?.role)) {
-    return <Navigate to="/" />;
+  if (
+    !isAuthenticated &&
+    !(
+      window.location.pathname.includes("/login") ||
+      window.location.pathname.includes("/register")
+    )
+  ) {
+    return <Navigate to="/login" />; // Redirect to login page
   }
 
-  // If the user is authenticated and has the correct role, render the children (protected content)
-  return children;
-};
+  if (
+    isAuthenticated &&
+    user?.role !== "admin" &&
+    window.location.pathname.includes("/admin")
+  ) {
+    return <Navigate to="/unauth-page" />;
+  }
 
-// Prop validation for `rolesAllowed` prop
-ProtectedRoute.propTypes = {
-  children: PropTypes.node.isRequired, // `children` can be any renderable content
-  rolesAllowed: PropTypes.arrayOf(PropTypes.string), // `rolesAllowed` should be an array of strings (roles)
-};
+  // If authenticated, but not on an admin page, just render the children
+  if (isAuthenticated && !window.location.pathname.includes("/admin")) {
+    return <>{children}</>;
+  }
 
-export default ProtectedRoute;
+  // Render the children if none of the above conditions are met (for unauthenticated users)
+  return <>{children}</>;
+}
+
+export default CheckAuth;

@@ -17,14 +17,20 @@ export const createProduct = async (req, res) => {
       return res
         .status(400)
         .json(
-          createResponse(400, false, ["Product with this name already exists."])
+          createResponse(400, false, [
+            { message: "Product with this name already exists." },
+          ])
         );
     }
 
     if (!req.file) {
       return res
         .status(400)
-        .json(createResponse(400, false, ["Product image is required!"]));
+        .json(
+          createResponse(400, false, [
+            { message: "Product image is required!" },
+          ])
+        );
     }
 
     const result = await uploadImageToCloudinary(req.file, {
@@ -96,7 +102,9 @@ export const getAllProduct = async (req, res) => {
     return res
       .status(500)
       .json(
-        createResponse(500, false, "Server error: Unable to fetch products")
+        createResponse(500, false, [
+          { message: "Server error: Unable to fetch products" },
+        ])
       );
   }
 };
@@ -110,7 +118,7 @@ export const getProductById = async (req, res) => {
     if (!product) {
       return res
         .status(404)
-        .json(createResponse(404, false, "Product not found"));
+        .json(createResponse(404, false, [{ message: "Product not found" }]));
     }
 
     return res.status(200).json(createResponse(200, true, [], product));
@@ -119,7 +127,9 @@ export const getProductById = async (req, res) => {
     return res
       .status(500)
       .json(
-        createResponse(500, false, "Server error: Unable to fetch product")
+        createResponse(500, false, [
+          { message: "Server error: Unable to fetch product" },
+        ])
       );
   }
 };

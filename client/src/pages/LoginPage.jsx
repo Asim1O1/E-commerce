@@ -1,6 +1,5 @@
 import React from "react";
 import LoginForm from "../components/auth/LoginForm";
-import { ToastContainer } from "react-toastify";
 
 const LoginPage = () => {
   return (
@@ -26,7 +25,6 @@ const LoginPage = () => {
               </a>
             </p>
           </div>
-          <ToastContainer />
         </div>
 
         {/* Right Side - Decorative Area */}

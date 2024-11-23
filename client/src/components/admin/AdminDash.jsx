@@ -1,14 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Plus, Edit, Trash2, Search } from "lucide-react";
 
 import { Link } from "react-router-dom";
 import AddProducts from "./AddProducts";
+import { ToastContainer } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllProducts } from "../../features/products/productSlice";
 
 const AdminDashboard = () => {
+  const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [showAddProductForm, setShowAddProductForm] = useState(false);
 
+  const { products, loading, error } = useSelector((state) => state.product);
+
+  useEffect(() => {
+    dispatch(getAllProducts({ page: 1, limit: 10, category: "" }));
+  }, [dispatch]);
   const closeAddProductForm = () => {
     console.log("closing the  modal");
     setShowAddProductForm(false);

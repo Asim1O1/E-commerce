@@ -1,6 +1,5 @@
 import React from "react";
 import RegisterForm from "../components/auth/RegisterForm";
-import { ToastContainer } from "react-toastify";
 
 const RegisterPage = () => {
   return (
@@ -30,7 +29,6 @@ const RegisterPage = () => {
               Sign in
             </a>
           </p>
-          <ToastContainer />
         </div>
       </div>
     </div>

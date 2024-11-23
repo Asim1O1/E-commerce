@@ -33,10 +33,7 @@ const login = async (credentials) => {
         withCredentials: true,
       }
     );
-    const { accessToken } = response.data;
-    if (accessToken) {
-      localStorage.setItem("accessToken", accessToken);
-    }
+
     return response.data;
   } catch (error) {
     console.log("The error in the login service is", error);

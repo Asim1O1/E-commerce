@@ -16,6 +16,7 @@ import AdminProducts from "./components/admin/AdminProducts";
 import AdminLayout from "./pages/AdminLayout";
 import { checkAuth } from "./features/auth/authSlice";
 import CheckAuth from "./utils/ProtectedRoute";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -26,47 +27,50 @@ function App() {
   }, [dispatch]);
 
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public routes */}
-        <Route
-          path="/"
-          element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <HomePage />
-            </CheckAuth>
-          }
-        />
+    <>
+      <ToastContainer position="top-right" autoClose={3000} />{" "}
+      <BrowserRouter>
+        <Routes>
+          {/* Public routes */}
+          <Route
+            path="/"
+            element={
+              <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+                <HomePage />
+              </CheckAuth>
+            }
+          />
 
-        <Route
-          path="/login"
-          element={isAuthenticated ? <Navigate to="/" /> : <LoginPage />}
-        />
-        <Route
-          path="/register"
-          element={isAuthenticated ? <Navigate to="/" /> : <RegisterPage />}
-        />
+          <Route
+            path="/login"
+            element={isAuthenticated ? <Navigate to="/" /> : <LoginPage />}
+          />
+          <Route
+            path="/register"
+            element={isAuthenticated ? <Navigate to="/" /> : <RegisterPage />}
+          />
 
-        <Route path="/productDetail" element={<ProductDetailPage />} />
-        <Route path="/products" element={<ProductsPage />} />
+          <Route path="/productDetail" element={<ProductDetailPage />} />
+          <Route path="/products" element={<ProductsPage />} />
 
-        {/* Admin Routes */}
-        <Route
-          path="/admin"
-          element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <AdminLayout />
-            </CheckAuth>
-          }
-        >
-          <Route index element={<AdminDashboard />} />
-          <Route path="products" element={<AdminProducts />} />
-        </Route>
-        <Route path="/addProduct" element={<AddProducts />} />
-        {/* 404 */}
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
-    </BrowserRouter>
+          {/* Admin Routes */}
+          <Route
+            path="/admin"
+            element={
+              <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+                <AdminLayout />
+              </CheckAuth>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="products" element={<AdminProducts />} />
+          </Route>
+          <Route path="/addProduct" element={<AddProducts />} />
+          {/* 404 */}
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
 

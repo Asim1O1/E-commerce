@@ -2,11 +2,15 @@
 import React, { useState } from "react";
 import { Upload, X } from "lucide-react";
 import PropTypes from "prop-types";
+import { useDispatch } from "react-redux";
+import { createProduct } from "../../features/products/productSlice";
+import { toast } from "react-toastify";
 
 const AddProducts = ({ onClose }) => {
+  const dispatch = useDispatch();
   console.log("onClose prop:", onClose);
-  const [formData, setFormData] = useState({
-    productName: "",
+  const [productData, setProductData] = useState({
+    name: "",
     category: "",
     price: "",
     description: "",
@@ -14,10 +18,26 @@ const AddProducts = ({ onClose }) => {
     image: null,
     fileName: "",
   });
+  const [errors, setErrors] = useState({});
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!productData.name) newErrors.name = "Product name is required";
+    if (!productData.description)
+      newErrors.description = "Product description is required";
+    if (!productData.price || isNaN(productData.price))
+      newErrors.price = "Valid price is required";
+    if (!productData.category)
+      newErrors.category = "Product category is required";
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setFormData((prevState) => ({
+    setProductData((prevState) => ({
       ...prevState,
       [id]: value,
     }));
@@ -26,7 +46,7 @@ const AddProducts = ({ onClose }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData((prevState) => ({
+      setProductData((prevState) => ({
         ...prevState,
         image: file,
         fileName: file.name,
@@ -34,9 +54,38 @@ const AddProducts = ({ onClose }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+
+    if (validateForm()) {
+      try {
+        const response = await dispatch(createProduct(productData));
+        console.log("Th response from the add product form ", response);
+        if (response.payload.StatusCode === 201) {
+          toast.success("Product added successfully!");
+        } else {
+          const errorMessage =
+            response.payload?.details?.ErrorMessage[0]?.message ||
+            "Server Error. Please try again.";
+          console.log(errorMessage);
+
+          toast.error(errorMessage);
+        }
+      } catch (error) {
+        console.log("Th error while adding product", error);
+        if (error.response) {
+          toast.error(
+            error.response.data?.ErrorMessage?.[0]?.message ||
+              "An unexpected error occurred."
+          );
+        } else {
+          toast.error("Network error, please try again.");
+        }
+      }
+    } else {
+      console.log("Form has errors:", errors);
+      toast.error("Please fix the errors in the form before submitting.");
+    }
   };
 
   return (
@@ -55,21 +104,20 @@ const AddProducts = ({ onClose }) => {
 
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* ... Rest of the form content remains the same ... */}
             <div className="grid grid-cols-2 gap-4">
               {/* Left Column */}
               <div className="space-y-4">
                 <div>
                   <label
-                    htmlFor="productName"
+                    htmlFor="name"
                     className="text-xs font-medium text-gray-700"
                   >
                     Product Name
                   </label>
                   <input
                     type="text"
-                    id="productName"
-                    value={formData.productName}
+                    id="name"
+                    value={productData.name}
                     onChange={handleInputChange}
                     placeholder="Enter product name"
                     className="mt-1 w-full px-3 py-1.5 text-sm border rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
@@ -87,7 +135,7 @@ const AddProducts = ({ onClose }) => {
                   <input
                     type="number"
                     id="price"
-                    value={formData.price}
+                    value={productData.price}
                     onChange={handleInputChange}
                     placeholder="Enter price"
                     className="mt-1 w-full px-3 py-1.5 text-sm border rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
@@ -105,7 +153,7 @@ const AddProducts = ({ onClose }) => {
                   <input
                     type="number"
                     id="stock"
-                    value={formData.stock}
+                    value={productData.stock}
                     onChange={handleInputChange}
                     placeholder="Enter stock quantity"
                     className="mt-1 w-full px-3 py-1.5 text-sm border rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
@@ -125,7 +173,7 @@ const AddProducts = ({ onClose }) => {
                   </label>
                   <select
                     id="category"
-                    value={formData.category}
+                    value={productData.category}
                     onChange={handleInputChange}
                     className="mt-1 w-full px-3 py-1.5 text-sm border rounded-md bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                     required
@@ -148,8 +196,8 @@ const AddProducts = ({ onClose }) => {
                     Description
                   </label>
                   <textarea
-                    id="productDescription"
-                    value={formData.productDescription}
+                    id="description"
+                    value={productData.description}
                     onChange={handleInputChange}
                     placeholder="Enter product description"
                     className="mt-1 w-full px-3 py-1.5 text-sm border rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
@@ -188,9 +236,9 @@ const AddProducts = ({ onClose }) => {
                     <p className="pl-1">or drag and drop</p>
                   </div>
                   <p className="text-xs text-gray-500">PNG, JPG up to 5MB</p>
-                  {formData.fileName && (
+                  {productData.fileName && (
                     <p className="text-xs text-gray-700 mt-1">
-                      Selected: {formData.fileName}
+                      Selected: {productData.fileName}
                     </p>
                   )}
                 </div>

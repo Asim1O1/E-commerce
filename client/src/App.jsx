@@ -62,7 +62,7 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
         </Route>
-
+        <Route path="/addProduct" element={<AddProducts />} />
         {/* 404 */}
         <Route path="*" element={<PageNotFound />} />
       </Routes>

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Base_Backend_Url } from "../constants";
-
+import formatError from "../utils/errorUtils";
 // REGISTER SERVICE
 const register = async (userData) => {
   try {
@@ -15,7 +15,7 @@ const register = async (userData) => {
       "Registration error:",
       error.response?.data?.ErrorMessage || error.message
     );
-    return (
+    throw (
       error.response?.data?.ErrorMessage[0].message ||
       error.message ||
       "Registration failed due to internal server error"
@@ -39,16 +39,10 @@ const login = async (credentials) => {
     }
     return response.data;
   } catch (error) {
-    console.log("The errror wjile loggin in is ", error);
-    console.error(
-      "Login error:",
-      error.response?.data?.ErrorMessage[0].message || error.message
-    );
-    return (
-      error.response?.data?.ErrorMessage[0].message ||
-      error.message ||
-      "Login failed due to internal server error"
-    );
+    console.log("The error in the login service is", error);
+    const formattedError = formatError(error);
+    console.log("The formatted error is", formattedError);
+    throw formattedError;
   }
 };
 // LOGOUT SERVICE
@@ -66,10 +60,10 @@ const logout = async () => {
       "Logout failed:",
       error.response.data?.ErrorMessage[0].message || error.message
     );
-    return (
+    throw new Error(
       error.response?.data?.ErrorMessage[0].message ||
-      error.message ||
-      "Logout failed due to internal server error"
+        error.message ||
+        "Logout failed due to internal server error"
     );
   }
 };

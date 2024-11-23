@@ -1,15 +1,17 @@
 import React, { useState } from "react";
-import { Plus, Edit, Trash2, Search, ChevronDown } from "lucide-react";
-import AddProducts from "./AddProducts";
+import { Plus, Edit, Trash2, Search } from "lucide-react";
+
 import { Link } from "react-router-dom";
+import AddProducts from "./AddProducts";
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [showAddProductForm, setShowAddProductForm] = useState(false);
 
-  const toggleAddProductForm = () => {
-    setShowAddProductForm(!showAddProductForm);
+  const closeAddProductForm = () => {
+    console.log("closing the  modal");
+    setShowAddProductForm(false);
   };
 
   const productData = [
@@ -65,6 +67,16 @@ const AdminDashboard = () => {
     );
   };
 
+  const handleDeleteSelected = () => {
+    // Implement deletion logic here (e.g., remove selected products from the state)
+    alert("Delete Selected Products: " + selectedProducts.join(", "));
+  };
+
+  const handleBulkEdit = () => {
+    // Implement bulk edit logic here
+    alert("Bulk Edit Selected Products: " + selectedProducts.join(", "));
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <main className="flex-1 p-8 bg-gray-50 overflow-y-auto">
@@ -88,12 +100,15 @@ const AdminDashboard = () => {
                 />
               </div>
               <button
-                onClick={toggleAddProductForm}
+                onClick={() => setShowAddProductForm(true)}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700"
               >
                 <Plus size={20} className="mr-2" />
                 Add Products
               </button>
+              {showAddProductForm && (
+                <AddProducts onClose={closeAddProductForm}></AddProducts>
+              )}
             </div>
           </div>
 
@@ -139,14 +154,11 @@ const AdminDashboard = () => {
                     <td className="p-4">${product.price.toFixed(2)}</td>
                     <td className="p-4">
                       <span
-                        className={`
-                          px-3 py-1 rounded-full text-xs
-                          ${
-                            product.stock < 20
-                              ? "bg-red-100 text-red-600"
-                              : "bg-green-100 text-green-600"
-                          }
-                        `}
+                        className={`${
+                          product.stock < 20
+                            ? "bg-red-100 text-red-600"
+                            : "bg-green-100 text-green-600"
+                        } px-3 py-1 rounded-full text-xs`}
                       >
                         {product.stock} in stock
                       </span>
@@ -155,12 +167,14 @@ const AdminDashboard = () => {
                       <button
                         className="text-blue-500 hover:text-blue-700"
                         title="Edit"
+                        onClick={() => alert(`Edit product: ${product.id}`)}
                       >
                         <Edit size={18} />
                       </button>
                       <button
                         className="text-red-500 hover:text-red-700"
                         title="Delete"
+                        onClick={() => alert(`Delete product: ${product.id}`)}
                       >
                         <Trash2 size={18} />
                       </button>
@@ -178,10 +192,16 @@ const AdminDashboard = () => {
                 {selectedProducts.length} product(s) selected
               </span>
               <div className="space-x-2">
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                <button
+                  onClick={handleBulkEdit}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                >
                   Bulk Edit
                 </button>
-                <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                <button
+                  onClick={handleDeleteSelected}
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                >
                   Delete Selected
                 </button>
               </div>
@@ -189,32 +209,17 @@ const AdminDashboard = () => {
           )}
         </section>
 
-        {/* Modal for Adding Product */}
-        {showAddProductForm && (
-          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-8 rounded-lg shadow-lg w-1/3">
-              <AddProducts />
-              <button
-                onClick={toggleAddProductForm}
-                className="mt-4 text-red-600 hover:text-red-800"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Orders Section */}
         <section className="mt-8 bg-white shadow-md rounded-lg p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">Recent Orders</h2>
-            <button className="text-blue-600 hover:underline flex items-center">
+            <h2 className="text-2xl font-bold text-gray-800">Orders</h2>
+            <Link
+              to="/admin/orders"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >
               View All Orders
-              <ChevronDown size={20} className="ml-2" />
-            </button>
+            </Link>
           </div>
-
-          {/* Orders Table */}
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead className="bg-gray-100 border-b">
@@ -224,35 +229,16 @@ const AdminDashboard = () => {
                   <th className="p-4">Status</th>
                   <th className="p-4">Total</th>
                   <th className="p-4">Date</th>
-                  <th className="p-4">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {orderData.map((order) => (
                   <tr key={order.id} className="border-b hover:bg-gray-50">
-                    <td className="p-4 font-medium">{order.id}</td>
+                    <td className="p-4">{order.id}</td>
                     <td className="p-4">{order.customer}</td>
-                    <td className="p-4">
-                      <span
-                        className={`${
-                          order.status === "Shipped"
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {order.status}
-                      </span>
-                    </td>
+                    <td className="p-4">{order.status}</td>
                     <td className="p-4">${order.total.toFixed(2)}</td>
                     <td className="p-4">{order.date}</td>
-                    <td className="p-4 flex space-x-2">
-                      <Link
-                        to={`/order/${order.id}`}
-                        className="text-blue-500 hover:text-blue-700"
-                      >
-                        View
-                      </Link>
-                    </td>
                   </tr>
                 ))}
               </tbody>

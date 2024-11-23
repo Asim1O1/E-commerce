@@ -36,19 +36,28 @@ const LoginForm = () => {
 
       console.log("The response in the login form is", response);
 
-      if (
-        response.payload.StatusCode === 200 &&
-        response.payload.IsSuccess === true
-      ) {
+      if (response.payload.status === 200) {
         console.log("The response is", response);
-        console.log("Navigating to home page....");
-        navigate("/");
       } else {
-        console.log("Gone to else");
-        toast.error(response.payload || "Server Error. Please try again.");
+        // Check if ErrorMessage is present and has content
+        const errorMessage =
+          response.payload.details?.ErrorMessage?.[0]?.message ||
+          "Server Error. Please try again.";
+
+        // Display error using toast
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error("Login error:", error);
+
+      if (error.response) {
+        toast.error(
+          error.response.data?.ErrorMessage?.[0]?.message ||
+            "An unexpected error occurred."
+        );
+      } else {
+        toast.error("Network error, please try again.");
+      }
     } finally {
       setLoading(false);
     }

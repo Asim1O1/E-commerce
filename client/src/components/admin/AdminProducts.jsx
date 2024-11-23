@@ -4,6 +4,12 @@ import { Plus, Edit, Trash2, Search } from "lucide-react";
 const AdminProducts = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [showAddProductForm, setShowAddProductForm] = useState(false);
+
+  const toggleAddProductForm = () => {
+    setShowAddProductForm(!showAddProductForm);
+  };
+
   const [productData, setProductData] = useState([
     {
       id: 1,
@@ -66,7 +72,10 @@ const AdminProducts = () => {
                 className="absolute left-3 top-3 text-gray-400"
               />
             </div>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700">
+            <button
+              onClick={toggleAddProductForm}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700"
+            >
               <Plus size={20} className="mr-2" />
               Add Product
             </button>

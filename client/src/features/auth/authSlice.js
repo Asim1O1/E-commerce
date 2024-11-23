@@ -7,9 +7,11 @@ export const loginUser = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await authService.login(credentials);
+      console.log("This is the response in the logiun userslice", response);
       return response;
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Login failed");
+      console.log("This is the error in the logiun userslice", error);
+      return rejectWithValue(error || "Login failed");
     }
   }
 );
@@ -74,7 +76,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Handling user login
+
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
       })
@@ -90,7 +92,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = null;
       })
-      // Handling registerUser
+
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
       })

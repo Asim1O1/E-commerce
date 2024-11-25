@@ -3,7 +3,7 @@ import { Plus, Edit, Trash2, Search } from "lucide-react";
 
 import { Link } from "react-router-dom";
 import AddProducts from "./AddProducts";
-import { ToastContainer } from "react-toastify";
+
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProducts } from "../../features/products/productSlice";
 
@@ -13,39 +13,19 @@ const AdminDashboard = () => {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [showAddProductForm, setShowAddProductForm] = useState(false);
 
-  const { products, loading, error } = useSelector((state) => state.product);
+  const { products } = useSelector((state) => state.product);
+  console.log("The products are", products);
 
   useEffect(() => {
     dispatch(getAllProducts({ page: 1, limit: 10, category: "" }));
   }, [dispatch]);
+
   const closeAddProductForm = () => {
     console.log("closing the  modal");
     setShowAddProductForm(false);
   };
 
-  const productData = [
-    {
-      id: 1,
-      name: "Wireless Headphones",
-      category: "Electronics",
-      price: 99.99,
-      stock: 45,
-    },
-    {
-      id: 2,
-      name: "Smart Watch",
-      category: "Wearables",
-      price: 199.99,
-      stock: 30,
-    },
-    {
-      id: 3,
-      name: "Bluetooth Speaker",
-      category: "Audio",
-      price: 79.99,
-      stock: 60,
-    },
-  ];
+  const productData = products?.data;
 
   const orderData = [
     {
@@ -77,12 +57,10 @@ const AdminDashboard = () => {
   };
 
   const handleDeleteSelected = () => {
-    // Implement deletion logic here (e.g., remove selected products from the state)
     alert("Delete Selected Products: " + selectedProducts.join(", "));
   };
 
   const handleBulkEdit = () => {
-    // Implement bulk edit logic here
     alert("Bulk Edit Selected Products: " + selectedProducts.join(", "));
   };
 
@@ -140,6 +118,7 @@ const AdminDashboard = () => {
                       }
                     />
                   </th>
+                  <th className="p-4">Image</th>
                   <th className="p-4">Product Name</th>
                   <th className="p-4">Category</th>
                   <th className="p-4">Price</th>
@@ -157,6 +136,26 @@ const AdminDashboard = () => {
                         onChange={() => toggleProductSelection(product.id)}
                         className="form-checkbox"
                       />
+                    </td>
+                    <td className="p-4">
+                      <div className="w-16 h-16 relative">
+                        {product.imageUrl ? (
+                          <img
+                            src={product.imageUrl}
+                            alt={product.name}
+                            className="w-full h-full object-cover rounded"
+                            onError={(e) => {
+                              e.target.src = "/api/placeholder/64/64";
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
+                            <span className="text-gray-400 text-xs">
+                              No image
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="p-4 font-medium">{product.name}</td>
                     <td className="p-4">{product.category}</td>

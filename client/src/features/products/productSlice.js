@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import productService, {
+  deleteSingleProductService,
   getAllProductService,
 } from "../../services/productService";
 
@@ -24,10 +25,22 @@ export const getAllProducts = createAsyncThunk(
       const response = await getAllProductService(page, limit, category);
       console.log("Fetched products:", response);
 
-      return response.data;
+      return response?.Result;
     } catch (error) {
       console.error("Error fetching products:", error);
       return rejectWithValue(error);
+    }
+  }
+);
+
+export const deleteSingleProduct = createAsyncThunk(
+  "products/deleteSingleProduct", // The action type
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await deleteSingleProductService(id);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message || "Failed to delete product");
     }
   }
 );
@@ -42,6 +55,8 @@ const productSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+
+      // FOR CREATE PRODUCT
       .addCase(createProduct.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -59,22 +74,23 @@ const productSlice = createSlice({
       })
       .addCase(createProduct.rejected, (state, action) => {
         state.loading = false;
-
         state.error = action.payload;
       })
-      .addCase(getAllProducts.pending, (state) => {
+
+      // FOR GET ALL PRODUCTS
+      .addCase(getAllProducts.pending, (state, action) => {
         state.loading = true;
         state.error = null;
-      });
-    // .addCase(getAllProductService.fulfilled, (state, action) => {
-    //   console.log("Fetched products:", action.payload);
-    //   state.loading = false;
-    //   state.products = action.payload
-    // })
-    // .addCase(getAllProductService.rejected, (state, action) => {
-    //   state.loading = false;
-    //   state.error = action.payload; // Store the error message in the state
-    // });
+      })
+      .addCase(getAllProducts.fulfilled, (state, action) => {
+        console.log("Fetched products:", action);
+        state.loading = false;
+        state.products = action.payload;
+      })
+      .addCase(getAllProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
   },
 });
 

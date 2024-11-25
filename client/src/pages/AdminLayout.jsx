@@ -32,7 +32,8 @@ const AdminLayout = () => {
 
   return (
     <div className="flex h-screen">
-      <aside className="w-64 bg-gray-800 text-white p-4">
+      {/* Sidebar */}
+      <aside className="w-64 bg-gray-800 text-white p-4 sticky top-0 h-screen">
         <nav>
           <ul className="space-y-2">
             {sidebarItems.map((item) => (
@@ -56,7 +57,8 @@ const AdminLayout = () => {
         </nav>
       </aside>
 
-      <main className="flex-1 bg-gray-100 p-6">
+      {/* Main Content */}
+      <main className="flex-1 bg-gray-100 p-6 overflow-auto">
         <Outlet />
       </main>
     </div>

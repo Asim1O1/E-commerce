@@ -1,39 +1,28 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Plus, Edit, Trash2, Search } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllProducts } from "../../features/products/productSlice";
 
 const AdminProducts = () => {
+  const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [showAddProductForm, setShowAddProductForm] = useState(false);
-
+  const [productData, setProductData] = useState(null);
   const toggleAddProductForm = () => {
     setShowAddProductForm(!showAddProductForm);
   };
 
-  const [productData, setProductData] = useState([
-    {
-      id: 1,
-      name: "Wireless Headphones",
-      category: "Electronics",
-      price: 99.99,
-      stock: 45,
-    },
-    {
-      id: 2,
-      name: "Smart Watch",
-      category: "Wearables",
-      price: 199.99,
-      stock: 30,
-    },
-    {
-      id: 3,
-      name: "Bluetooth Speaker",
-      category: "Audio",
-      price: 79.99,
-      stock: 60,
-    },
-  ]);
+  const { products, loading, error } = useSelector((state) => state?.product);
+  console.log("The products are", products);
 
+  useEffect(() => {
+    dispatch(getAllProducts({ page: 1, limit: 10, category: "" }));
+  }, [dispatch, page, limit, category]);
+
+  useEffect(() => {
+    if (products) setProductData(products);
+  }, [products]);
   const filteredProducts = productData.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -101,6 +90,7 @@ const AdminProducts = () => {
                     }
                   />
                 </th>
+                <th className="p-4">Image</th>
                 <th className="p-4">Product Name</th>
                 <th className="p-4">Category</th>
                 <th className="p-4">Price</th>
@@ -114,21 +104,41 @@ const AdminProducts = () => {
                   <td className="p-4">
                     <input
                       type="checkbox"
-                      className="form-checkbox"
                       checked={selectedProducts.includes(product.id)}
                       onChange={() => toggleProductSelection(product.id)}
+                      className="form-checkbox"
                     />
+                  </td>
+                  <td className="p-4">
+                    <div className="w-16 h-16 relative">
+                      {product.imageUrl ? (
+                        <img
+                          src={product.imageUrl}
+                          alt={product.name}
+                          className="w-full h-full object-cover rounded"
+                          onError={(e) => {
+                            e.target.src = "/api/placeholder/64/64";
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
+                          <span className="text-gray-400 text-xs">
+                            No image
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td className="p-4 font-medium">{product.name}</td>
                   <td className="p-4">{product.category}</td>
                   <td className="p-4">${product.price.toFixed(2)}</td>
                   <td className="p-4">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs ${
+                      className={`${
                         product.stock < 20
                           ? "bg-red-100 text-red-600"
                           : "bg-green-100 text-green-600"
-                      }`}
+                      } px-3 py-1 rounded-full text-xs`}
                     >
                       {product.stock} in stock
                     </span>
@@ -137,13 +147,14 @@ const AdminProducts = () => {
                     <button
                       className="text-blue-500 hover:text-blue-700"
                       title="Edit"
+                      onClick={() => alert(`Edit product: ${product.id}`)}
                     >
                       <Edit size={18} />
                     </button>
                     <button
                       className="text-red-500 hover:text-red-700"
-                      onClick={() => deleteProduct(product.id)}
                       title="Delete"
+                      onClick={() => alert(`Delete product: ${product.id}`)}
                     >
                       <Trash2 size={18} />
                     </button>

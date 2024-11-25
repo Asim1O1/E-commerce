@@ -31,7 +31,11 @@ const addProduct = async (productData) => {
   }
 };
 
-export const getAllProductService = async (page = 1, limit = 10, category = "") => {
+export const getAllProductService = async (
+  page = 1,
+  limit = 10,
+  category = ""
+) => {
   try {
     const params = {
       page,
@@ -51,9 +55,44 @@ export const getAllProductService = async (page = 1, limit = 10, category = "") 
   }
 };
 
+export const deleteSingleProductService = async (id) => {
+  try {
+    const response = await axios.delete(
+      `${Base_Backend_Url}/api/products/${id}`,
+      {
+        withCredentials: true,
+      }
+    );
+
+    console.log("The response while deleting product is", response);
+    return response;
+  } catch (error) {
+    console.log("The error while deleting product", error);
+    const formattedError = formatError(error);
+    console.log("The formatted error is", formattedError);
+    throw formattedError;
+  }
+};
+
+export const updateProductsService = async () => {
+  try {
+    const response = await axios.put(`${Base_Backend_Url}/api/products/`, {
+      withCredentials: true,
+    });
+    console.log("The response while updating product is", response);
+    return response;
+  } catch (error) {
+    console.log("The error while updating product", error);
+    const formattedError = formatError(error);
+    console.log("The formatted error is", formattedError);
+    throw formattedError;
+  }
+};
+
 const productService = {
   addProduct,
   getAllProductService,
+  deleteSingleProductService,
 };
 
 export default productService;

@@ -262,7 +262,7 @@ const AddProducts = ({ onClose }) => {
 };
 
 AddProducts.propTypes = {
-  onClose: PropTypes.func.isRequired, // Ensure onClose is a function and required
+  onClose: PropTypes.func.isRequired,
 };
 
 export default AddProducts;

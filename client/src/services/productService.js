@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Base_Backend_Url } from "../constants";
 import formatError from "../utils/errorUtils";
+import axiosInstance from "../utils/axiosInstance";
 
 const addProduct = async (productData) => {
   try {
@@ -58,14 +59,8 @@ export const getAllProductService = async (
 
 export const deleteSingleProductService = async (id) => {
   try {
-    
     console.log("The id of the selected product is", id);
-    const response = await axios.delete(
-      `${Base_Backend_Url}/api/products/${id}`,
-      {
-        withCredentials: true,
-      }
-    );
+    const response = await axiosInstance.delete(`/api/products/${id}`);
 
     console.log("The response while deleting product is", response);
     return response;
@@ -79,9 +74,7 @@ export const deleteSingleProductService = async (id) => {
 
 export const updateProductsService = async () => {
   try {
-    const response = await axios.put(`${Base_Backend_Url}/api/products/`, {
-      withCredentials: true,
-    });
+    const response = await axiosInstance.put(`/api/products/`);
     console.log("The response while updating product is", response);
     return response;
   } catch (error) {

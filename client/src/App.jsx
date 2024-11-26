@@ -14,7 +14,7 @@ import AdminDashboard from "./components/admin/AdminDash";
 import PageNotFound from "./pages/404 Page";
 import AdminProducts from "./components/admin/AdminProducts";
 import AdminLayout from "./pages/AdminLayout";
-import { checkAuth } from "./features/auth/authSlice";
+import { checkAuth } from "./features/auth/authSlice.jsx";
 import CheckAuth from "./utils/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 

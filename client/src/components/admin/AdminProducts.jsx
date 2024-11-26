@@ -1,25 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { Plus, Edit, Trash2, Search } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
+import { confirmAlert } from "react-confirm-alert";
+import "react-confirm-alert/src/react-confirm-alert.css";
 import {
   deleteSingleProduct,
   getAllProducts,
 } from "../../features/products/productSlice";
 import AddProducts from "./AddProducts";
 import { toast } from "react-toastify";
+import { ClipLoader } from "react-spinners";
 
 const AdminProducts = () => {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [showAddProductForm, setShowAddProductForm] = useState(false);
   const [productData, setProductData] = useState([]);
   const { products } = useSelector((state) => state.product);
 
   const closeAddProductForm = () => {
-    console.log("closing the  modal");
+    console.log("closing the modal");
     setShowAddProductForm(false);
   };
+
   useEffect(() => {
     dispatch(getAllProducts({ page: 1, limit: 10, category: "" }));
   }, [dispatch]);
@@ -41,23 +46,37 @@ const AdminProducts = () => {
   };
 
   const handleDeleteSingleProduct = (productId) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
-      dispatch(deleteSingleProduct(productId))
-        .unwrap()
-        .then(() => {
-          dispatch(getAllProducts({ page: 1, limit: 10, category: "" }));
-          toast.success("Product deleted successfully!", {
-            position: "top-right",
-            autoClose: 3000,
-          });
-        })
-        .catch((error) => {
-          toast.error(`Error: ${error}`, {
-            position: "top-right",
-            autoClose: 3000,
-          });
-        });
-    }
+    confirmAlert({
+      title: "Confirm to delete",
+      message: "Are you sure you want to delete this product?",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: () => {
+            setLoading(true);
+            dispatch(deleteSingleProduct(productId))
+              .unwrap()
+              .then(() => {
+                dispatch(getAllProducts({ page: 1, limit: 10, category: "" }));
+                toast.success("Product deleted successfully!", {
+                  position: "top-right",
+                  autoClose: 3000,
+                });
+              })
+              .catch((error) => {
+                toast.error(`Error: ${error}`, {
+                  position: "top-right",
+                  autoClose: 3000,
+                });
+              })
+              .finally(() => setLoading(false));
+          },
+        },
+        {
+          label: "No",
+        },
+      ],
+    });
   };
 
   const deleteSelectedProducts = () => {
@@ -70,6 +89,13 @@ const AdminProducts = () => {
 
   return (
     <div className="p-8 bg-gray-50">
+      {/* Centered Loader */}
+      {loading && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+          <ClipLoader size={50} color={"#ffffff"} loading={loading} />
+        </div>
+      )}
+
       <section className="bg-white shadow-md rounded-lg p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Manage Products</h2>

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Base_Backend_Url } from "../constants";
 import formatError from "../utils/errorUtils";
+import axiosInstance from "../utils/axiosInstance";
 // REGISTER SERVICE
 const register = async (userData) => {
   try {
@@ -45,7 +46,7 @@ const login = async (credentials) => {
 // LOGOUT SERVICE
 const logout = async () => {
   try {
-    await axios.post(
+    await axiosInstance.post(
       `${Base_Backend_Url}/api/auth/logout`,
       {},
       {
@@ -78,10 +79,29 @@ export const checkAuth = async () => {
     throw new Error(error.response?.data || "Authentication check failed");
   }
 };
+
+export const refreshAccessTokenService = async () => {
+  try {
+    const response = await axios.post(
+      `${Base_Backend_Url}/api/auth/refresh-token`,
+      {},
+      {
+        withCredentials: true,
+      }
+    );
+    console.log("The response while refreshing is", response);
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data || "SERVER ERROR WHILE REFRESHING ACCES TOEKEN"
+    );
+  }
+};
 const authService = {
   register,
   login,
   logout,
+  refreshAccessTokenService,
 };
 
 export default authService;

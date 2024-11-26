@@ -1,7 +1,14 @@
-import { LayoutGrid, Package, Settings, ShoppingCart } from "lucide-react";
+import {
+  LayoutGrid,
+  Package,
+  Settings,
+  ShoppingCart,
+  LogOut,
+} from "lucide-react"; // Add LogOut icon
 import React from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
-
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "../features/auth/authSlice";
 const sidebarItems = [
   {
     icon: <LayoutGrid size={20} />,
@@ -28,11 +35,19 @@ const sidebarItems = [
 ];
 
 const AdminLayout = () => {
+  const dispatch = useDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Handle logout functionality
+  const handleLogout = async () => {
+    console.log("ENTERED THE LOGOUT FUNCTION");
+    await dispatch(logoutUser());
+    navigate("/login");
+  };
 
   return (
     <div className="flex h-screen">
-      {/* Sidebar */}
       <aside className="w-64 bg-gray-800 text-white p-4 sticky top-0 h-screen">
         <nav>
           <ul className="space-y-2">
@@ -55,6 +70,15 @@ const AdminLayout = () => {
             ))}
           </ul>
         </nav>
+
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="mt-4 w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md flex items-center justify-center space-x-2"
+        >
+          <LogOut size={20} />
+          <span>Logout</span>
+        </button>
       </aside>
 
       {/* Main Content */}

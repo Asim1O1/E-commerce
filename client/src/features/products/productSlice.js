@@ -22,6 +22,7 @@ export const getAllProducts = createAsyncThunk(
   "products/fetchAll",
   async ({ page, limit, category }, { rejectWithValue }) => {
     try {
+      console.log("ENTERED THE GET ALL PRODUCTS THUNK API");
       const response = await getAllProductService(page, limit, category);
       console.log("Fetched products:", response);
 
@@ -38,6 +39,7 @@ export const deleteSingleProduct = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await deleteSingleProductService(id);
+      console.log("The response while deleting product is", response);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message || "Failed to delete product");
@@ -90,7 +92,7 @@ const productSlice = createSlice({
       .addCase(getAllProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
+      });
   },
 });
 

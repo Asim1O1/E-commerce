@@ -49,7 +49,7 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await authService.logout();
-      localStorage.removeItem("authToken");
+      console.log("The reponse while logging out is", response);
       return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || "Logout failed");

@@ -12,6 +12,7 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [showAddProductForm, setShowAddProductForm] = useState(false);
+  const [productData, setProductData] = useState([]);
 
   const { products } = useSelector((state) => state.product);
   console.log("The products are", products);
@@ -20,12 +21,14 @@ const AdminDashboard = () => {
     dispatch(getAllProducts({ page: 1, limit: 10, category: "" }));
   }, [dispatch]);
 
+  useEffect(() => {
+    if (products?.data) setProductData(products?.data);
+  }, [products?.data]);
+
   const closeAddProductForm = () => {
     console.log("closing the  modal");
     setShowAddProductForm(false);
   };
-
-  const productData = products?.data;
 
   const orderData = [
     {

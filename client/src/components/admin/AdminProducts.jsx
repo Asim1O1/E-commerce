@@ -1,28 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { Plus, Edit, Trash2, Search } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllProducts } from "../../features/products/productSlice";
+import {
+  deleteSingleProduct,
+  getAllProducts,
+} from "../../features/products/productSlice";
+import AddProducts from "./AddProducts";
+import { toast } from "react-toastify";
 
 const AdminProducts = () => {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [showAddProductForm, setShowAddProductForm] = useState(false);
-  const [productData, setProductData] = useState(null);
-  const toggleAddProductForm = () => {
-    setShowAddProductForm(!showAddProductForm);
+  const [productData, setProductData] = useState([]);
+  const { products } = useSelector((state) => state.product);
+
+  const closeAddProductForm = () => {
+    console.log("closing the  modal");
+    setShowAddProductForm(false);
   };
-
-  const { products, loading, error } = useSelector((state) => state?.product);
-  console.log("The products are", products);
-
   useEffect(() => {
     dispatch(getAllProducts({ page: 1, limit: 10, category: "" }));
-  }, [dispatch, page, limit, category]);
+  }, [dispatch]);
 
   useEffect(() => {
-    if (products) setProductData(products);
-  }, [products]);
+    if (products?.data) setProductData(products?.data);
+  }, [products?.data]);
+
   const filteredProducts = productData.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -35,11 +40,32 @@ const AdminProducts = () => {
     );
   };
 
-  const deleteProduct = (productId) => {
+  const handleDeleteSingleProduct = (productId) => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      dispatch(deleteSingleProduct(productId))
+        .unwrap()
+        .then(() => {
+          dispatch(getAllProducts({ page: 1, limit: 10, category: "" }));
+          toast.success("Product deleted successfully!", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        })
+        .catch((error) => {
+          toast.error(`Error: ${error}`, {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        });
+    }
+  };
+
+  const deleteSelectedProducts = () => {
     const updatedProducts = productData.filter(
-      (product) => product.id !== productId
+      (product) => !selectedProducts.includes(product.id)
     );
     setProductData(updatedProducts);
+    setSelectedProducts([]);
   };
 
   return (
@@ -62,12 +88,15 @@ const AdminProducts = () => {
               />
             </div>
             <button
-              onClick={toggleAddProductForm}
+              onClick={() => setShowAddProductForm(true)}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700"
             >
               <Plus size={20} className="mr-2" />
-              Add Product
+              Add Products
             </button>
+            {showAddProductForm && (
+              <AddProducts onClose={closeAddProductForm}></AddProducts>
+            )}
           </div>
         </div>
 
@@ -80,12 +109,15 @@ const AdminProducts = () => {
                   <input
                     type="checkbox"
                     className="form-checkbox"
-                    checked={selectedProducts.length === productData.length}
+                    checked={
+                      selectedProducts.length === filteredProducts.length &&
+                      filteredProducts.length > 0
+                    }
                     onChange={() =>
                       setSelectedProducts(
-                        selectedProducts.length === productData.length
+                        selectedProducts.length === filteredProducts.length
                           ? []
-                          : productData.map((p) => p.id)
+                          : filteredProducts.map((p) => p.id)
                       )
                     }
                   />
@@ -116,9 +148,6 @@ const AdminProducts = () => {
                           src={product.imageUrl}
                           alt={product.name}
                           className="w-full h-full object-cover rounded"
-                          onError={(e) => {
-                            e.target.src = "/api/placeholder/64/64";
-                          }}
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
@@ -147,14 +176,13 @@ const AdminProducts = () => {
                     <button
                       className="text-blue-500 hover:text-blue-700"
                       title="Edit"
-                      onClick={() => alert(`Edit product: ${product.id}`)}
                     >
                       <Edit size={18} />
                     </button>
                     <button
                       className="text-red-500 hover:text-red-700"
                       title="Delete"
-                      onClick={() => alert(`Delete product: ${product.id}`)}
+                      onClick={() => handleDeleteSingleProduct(product._id)}
                     >
                       <Trash2 size={18} />
                     </button>
@@ -177,13 +205,7 @@ const AdminProducts = () => {
               </button>
               <button
                 className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
-                onClick={() =>
-                  setProductData(
-                    productData.filter(
-                      (product) => !selectedProducts.includes(product.id)
-                    )
-                  )
-                }
+                onClick={deleteSelectedProducts}
               >
                 Delete Selected
               </button>

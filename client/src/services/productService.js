@@ -36,6 +36,7 @@ export const getAllProductService = async (
   limit = 10,
   category = ""
 ) => {
+  console.log("ENTERED THE GET ALL PRODUCT SERVICE");
   try {
     const params = {
       page,
@@ -57,6 +58,8 @@ export const getAllProductService = async (
 
 export const deleteSingleProductService = async (id) => {
   try {
+    
+    console.log("The id of the selected product is", id);
     const response = await axios.delete(
       `${Base_Backend_Url}/api/products/${id}`,
       {

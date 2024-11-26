@@ -6,6 +6,7 @@ import {
   userLogout,
 } from "../controllers/user.controller.js";
 import protectRoute from "../middlewares/protectRoute.js";
+import refreshAccessToken from "../utils/refreshAccessToken.js";
 import { createResponse } from "../utils/responseHelper.js";
 
 const router = express.Router();
@@ -15,6 +16,7 @@ const router = express.Router();
 router.post("/register", userRegister);
 router.post("/login", userLogin);
 router.post("/logout", protectRoute, userLogout);
+router.post("/refresh-token", refreshAccessToken);
 router.get("/checkAuth", protectRoute, (req, res) => {
   const user = req.user;
   return res.status(200).json(createResponse(200, true, [], user));

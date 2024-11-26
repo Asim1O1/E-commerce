@@ -87,7 +87,9 @@ export const userLogin = async (req, res, next) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 30 * 60 * 1000,
+      
     });
+    console.log("cookiee set succesfyll")
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,

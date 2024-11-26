@@ -87,25 +87,31 @@ export const createProduct = async (req, res) => {
 export const getAllProduct = async (req, res) => {
   try {
     const { page = 1, limit = 10, category } = req.query;
-    const filter = category ? { category } : {};
+    const filter = category ? { category } : {}; // Apply category filter if present
     const paginatedProducts = await paginate(
       Product,
       filter,
       parseInt(page),
       parseInt(limit)
     );
-    return res
-      .status(200)
-      .json(createResponse(200, true, [], paginatedProducts));
+
+    return res.status(200).json({
+      statusCode: 200,
+      IsSuccess: true,
+      Result: {
+        data: paginatedProducts.data, // Products data
+        pagination: paginatedProducts.pagination, // Pagination metadata
+      },
+      ErrorMessage: [], // Empty array if no errors
+    });
   } catch (error) {
     console.error("Error:", error.message);
-    return res
-      .status(500)
-      .json(
-        createResponse(500, false, [
-          { message: "Server error: Unable to fetch products" },
-        ])
-      );
+    return res.status(500).json({
+      statusCode: 500,
+      IsSuccess: false,
+      Result: null,
+      ErrorMessage: [{ message: "Server error: Unable to fetch products" }],
+    });
   }
 };
 
@@ -182,13 +188,21 @@ export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(400)
+        .json(createResponse(400, false, "Invalid product ID", []));
+    }
+
     const product = await Product.findById(id);
     if (!product) {
       return res
         .status(404)
         .json(createResponse(404, false, "Product not found", []));
     }
+
     console.log("The product is", product);
+
     await cloudinary.v2.uploader.destroy(product.cloudinaryId);
 
     await Product.findByIdAndDelete(id);

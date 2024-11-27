@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import cloudinary from "../imageUpload/cloudinaryConfig.js";
 import { uploadImageToCloudinary } from "../imageUpload/fileUpload.js";
 import { validateProduct } from "../middlewares/validationSchema.js";
@@ -143,7 +144,14 @@ export const getProductById = async (req, res) => {
 // UPDATE PRODUCT
 export const updateProduct = async (req, res) => {
   try {
+    console.log("Th req params is", req.params)
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(400)
+        .json(createResponse(400, false, "Invalid product ID", []));
+    }
+    console.log("The id is", id);
     const updates = req.body;
 
     const product = await Product.findById(id);
@@ -186,6 +194,7 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
   try {
+    console.log("HIT THE DELETE API");
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -200,8 +209,6 @@ export const deleteProduct = async (req, res) => {
         .status(404)
         .json(createResponse(404, false, "Product not found", []));
     }
-
-    console.log("The product is", product);
 
     await cloudinary.v2.uploader.destroy(product.cloudinaryId);
 

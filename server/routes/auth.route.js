@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.post("/register", userRegister);
 router.post("/login", userLogin);
-router.post("/logout", protectRoute, userLogout);
+router.post("/logout", userLogout);
 router.post("/refresh-token", refreshAccessToken);
 router.get("/checkAuth", protectRoute, (req, res) => {
   const user = req.user;

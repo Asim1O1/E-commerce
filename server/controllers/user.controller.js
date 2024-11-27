@@ -97,6 +97,7 @@ export const userLogin = async (req, res, next) => {
       sameSite: "strict",
       maxAge: 24 * 60 * 60 * 1000,
     });
+    console.log("refresh token set successful")
 
     return res.status(200).json(
       createResponse(200, true, [], {

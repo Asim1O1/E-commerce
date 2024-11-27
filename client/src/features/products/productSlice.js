@@ -50,11 +50,14 @@ export const deleteSingleProduct = createAsyncThunk(
 
 export const updateProduct = createAsyncThunk(
   "products/updateProduct",
-  async ({ productId, productData }, { rejectWithValue }) => {
+  async ({ productId, newProductData }, { rejectWithValue }) => {
+    console.log("Received data in updateProduct thunk:");
+    console.log("Product ID:", productId);
+    console.log("Updated Product Data:", newProductData);
+
     try {
-      console.log("The id of the selected product is", productId);
-      const response = await updateProductsService(productId, productData);
-      console.log("The response while updating product is", response);
+      const response = await updateProductsService(productId, newProductData);
+      console.log("Response from update service:", response);
       return response.data;
     } catch (error) {
       return rejectWithValue(error || "Failed to update product");
@@ -88,6 +91,7 @@ const productSlice = createSlice({
         state.products = action.payload.IsSuccess
           ? action?.payload?.Result?.product_data
           : null;
+        console.log(state.products);
       })
       .addCase(createProduct.rejected, (state, action) => {
         state.loading = false;
@@ -110,21 +114,27 @@ const productSlice = createSlice({
       })
 
       // FOR UPDATE PRODUCT
-      .addCase(updateProduct.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(updateProduct.fulfilled, (state, action) => {
-        const updatedProduct = action.payload.Result.product_data;  // Extract the updated product
-  
-        // Check if the products are in an array, then map and update the specific product
+        console.log("The updated product is:", action.payload);
+        const updatedProduct = action.payload.Result.product_data;
+
         if (Array.isArray(state.products)) {
-          state.products = state.products.map(product =>
+          state.products = state.products.map((product) =>
             product._id === updatedProduct._id ? updatedProduct : product
           );
         } else {
-          console.error("State.products is not an array");
+          console.error(
+            "State.products is not an array, resetting to empty array"
+          );
+
+          state.products = Array.isArray(state.products) ? state.products : [];
+
+          state.products = state.products.map((product) =>
+            product._id === updatedProduct._id ? updatedProduct : product
+          );
         }
       })
+
       .addCase(updateProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;

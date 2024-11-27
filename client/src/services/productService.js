@@ -74,8 +74,7 @@ export const deleteSingleProductService = async (id) => {
 
 export const updateProductsService = async (id, productData) => {
   try {
-    console.log("Th id while colling the aPI IS", id);
-    console.log("Product data while colling the aPI IS", productData);
+    console.log("SENDING THE PRODUCT DATA FOR UPDATION", productData);
     const response = await axiosInstance.put(
       `/api/products/${id}`,
       productData

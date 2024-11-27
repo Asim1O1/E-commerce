@@ -101,6 +101,9 @@ const AdminProducts = () => {
     if (!name || name.trim() === "") {
       errorMessages.push("Product name is required.");
     }
+    if (!description || description.trim() === "") {
+      errorMessages.push("Product description is required.");
+    }
 
     if (!category || category.trim() === "") {
       errorMessages.push("Category is required.");
@@ -116,37 +119,63 @@ const AdminProducts = () => {
 
     if (errorMessages.length > 0) {
       console.log("Validation errors:", errorMessages);
-      return; // Stop further execution if validation fails
+      return;
     }
 
     // Prepare the data to be sent
-    const updatedProductData = {
-      name: editProduct.name,
-      description: editProduct.description,
-      price: editProduct.price,
-      category: editProduct.category,
-      stock: editProduct.stock,
-      imageUrl: previewImage || editProduct.imageUrl, // Updated image URL
+    const newProductData = {
+      name: editProduct?.name,
+      description: editProduct?.description,
+      price: editProduct?.price,
+      category: editProduct?.category,
+      stock: editProduct?.stock,
+      imageUrl: previewImage || editProduct?.imageUrl,
     };
 
-    // Make sure productId is provided
+    console.log(newProductData);
+
     if (!productId) {
       console.error("Product ID is missing.");
       return;
     }
+    if (!newProductData) {
+      console.errror("Product data is missing");
+      return;
+    }
 
     try {
-      // Dispatch the action to update the product
-      console.log("tHE PRODUCT ID IS", productId);
-      const response = await dispatch(
-        updateProduct({productId, updatedProductData})
+      console.log(
+        "entered try catch block for update product and this is the data",
+        newProductData
       );
+      const response = await dispatch(
+        updateProduct({ productId, newProductData })
+      );
+      if (response.payload.StatusCode === 200) {
+        dispatch(getAllProducts({ page: 1, limit: 10, category: "" }));
+        toast.success("Product updated successfully!");
+      } else {
+        const errorMessage =
+          response.payload?.details?.ErrorMessage[0]?.message ||
+          "Server Error. Please try again.";
+        console.log(errorMessage);
+
+        toast.error(errorMessage);
+      }
+
       console.log("Product updated successfully:", response);
 
-      // Close the form after successful update
       closeEditProductForm();
     } catch (error) {
       console.error("Error updating product:", error);
+      if (error.response) {
+        toast.error(
+          error.response.data?.ErrorMessage?.[0]?.message ||
+            "An unexpected error occurred."
+        );
+      } else {
+        toast.error("Network error, please try again.");
+      }
     }
   };
 

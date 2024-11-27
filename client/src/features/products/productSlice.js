@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import productService, {
   deleteSingleProductService,
   getAllProductService,
+  updateProductsService,
 } from "../../services/productService";
 
 export const createProduct = createAsyncThunk(
@@ -42,7 +43,21 @@ export const deleteSingleProduct = createAsyncThunk(
       console.log("The response while deleting product is", response);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.message || "Failed to delete product");
+      return rejectWithValue(error || "Failed to delete product");
+    }
+  }
+);
+
+export const updateProduct = createAsyncThunk(
+  "products/updateProduct",
+  async ({ productId, productData }, { rejectWithValue }) => {
+    try {
+      console.log("The id of the selected product is", productId);
+      const response = await updateProductsService(productId, productData);
+      console.log("The response while updating product is", response);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error || "Failed to update product");
     }
   }
 );
@@ -90,6 +105,27 @@ const productSlice = createSlice({
         state.products = action.payload;
       })
       .addCase(getAllProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // FOR UPDATE PRODUCT
+      .addCase(updateProduct.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        const updatedProduct = action.payload.Result.product_data;  // Extract the updated product
+  
+        // Check if the products are in an array, then map and update the specific product
+        if (Array.isArray(state.products)) {
+          state.products = state.products.map(product =>
+            product._id === updatedProduct._id ? updatedProduct : product
+          );
+        } else {
+          console.error("State.products is not an array");
+        }
+      })
+      .addCase(updateProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

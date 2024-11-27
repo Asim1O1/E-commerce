@@ -58,7 +58,7 @@ function App() {
             path="/admin"
             element={
               // <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-                <AdminLayout />
+              <AdminLayout />
               // {/* </CheckAuth> */}
             }
           >

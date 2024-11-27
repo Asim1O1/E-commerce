@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Search, ShoppingCart, User, Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../features/auth/authSlice";
 import { checkAuth } from "../../features/auth/authSlice";
 
 const NavBar = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -19,6 +20,7 @@ const NavBar = () => {
   }, [dispatch, isAuthenticated]);
   const handleLogout = () => {
     dispatch(logoutUser());
+    navigate("/login");
   };
 
   const NavLink = ({ href, children }) => (

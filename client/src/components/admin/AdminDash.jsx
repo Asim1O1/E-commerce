@@ -26,7 +26,6 @@ const AdminDashboard = () => {
   }, [products?.data]);
 
   const closeAddProductForm = () => {
-    console.log("closing the  modal");
     setShowAddProductForm(false);
   };
 
@@ -102,7 +101,6 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Product Table */}
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead className="bg-gray-100 border-b">
@@ -196,7 +194,6 @@ const AdminDashboard = () => {
             </table>
           </div>
 
-          {/* Batch Actions */}
           {selectedProducts.length > 0 && (
             <div className="mt-4 flex justify-between items-center bg-blue-50 p-4 rounded-lg">
               <span className="text-blue-800">

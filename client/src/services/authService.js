@@ -2,6 +2,7 @@ import axios from "axios";
 import { Base_Backend_Url } from "../constants";
 import formatError from "../utils/errorUtils";
 import axiosInstance from "../utils/axiosInstance";
+
 // REGISTER SERVICE
 const register = async (userData) => {
   try {
@@ -46,13 +47,8 @@ const login = async (credentials) => {
 // LOGOUT SERVICE
 const logout = async () => {
   try {
-    await axiosInstance.post(
-      `${Base_Backend_Url}/api/auth/logout`,
-      {},
-      {
-        withCredentials: true,
-      }
-    );
+    console.log("entered the logout service");
+    await axiosInstance.post(`/api/auth/logout`);
   } catch (error) {
     console.error(
       "Logout failed:",
@@ -82,6 +78,7 @@ export const checkAuth = async () => {
 
 export const refreshAccessTokenService = async () => {
   try {
+    console.log("ENTERED THE REFRESH ACCESS TOKEN SERVICE")
     const response = await axios.post(
       `${Base_Backend_Url}/api/auth/refresh-token`,
       {},
@@ -97,6 +94,7 @@ export const refreshAccessTokenService = async () => {
     );
   }
 };
+
 const authService = {
   register,
   login,

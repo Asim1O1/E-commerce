@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 
 const AddProducts = ({ onClose }) => {
   const dispatch = useDispatch();
-  console.log("onClose prop:", onClose);
+
   const [productData, setProductData] = useState({
     name: "",
     category: "",
@@ -60,7 +60,7 @@ const AddProducts = ({ onClose }) => {
     if (validateForm()) {
       try {
         const response = await dispatch(createProduct(productData));
-        console.log("Th response from the add product form ", response);
+
         if (response.payload.StatusCode === 201) {
           toast.success("Product added successfully!");
         } else {
@@ -83,7 +83,6 @@ const AddProducts = ({ onClose }) => {
         }
       }
     } else {
-      console.log("Form has errors:", errors);
       toast.error("Please fix the errors in the form before submitting.");
     }
   };
@@ -105,7 +104,6 @@ const AddProducts = ({ onClose }) => {
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              {/* Left Column */}
               <div className="space-y-4">
                 <div>
                   <label
@@ -245,7 +243,6 @@ const AddProducts = ({ onClose }) => {
               </div>
             </div>
 
-            {/* Submit Button */}
             <div className="flex justify-end gap-2 pt-4">
               <button
                 type="submit"

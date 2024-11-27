@@ -27,7 +27,7 @@ const addProduct = async (productData) => {
   } catch (error) {
     console.log("The error while adding product", error);
     const formattedError = formatError(error);
-    console.log("The formatted ");
+
     throw formattedError;
   }
 };
@@ -72,9 +72,14 @@ export const deleteSingleProductService = async (id) => {
   }
 };
 
-export const updateProductsService = async () => {
+export const updateProductsService = async (id, productData) => {
   try {
-    const response = await axiosInstance.put(`/api/products/`);
+    console.log("Th id while colling the aPI IS", id);
+    console.log("Product data while colling the aPI IS", productData);
+    const response = await axiosInstance.put(
+      `/api/products/${id}`,
+      productData
+    );
     console.log("The response while updating product is", response);
     return response;
   } catch (error) {

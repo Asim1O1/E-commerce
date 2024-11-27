@@ -61,6 +61,7 @@ export const refreshAccessToken = createAsyncThunk(
   "auth/refresh_token",
   async (_, { rejectWithValue }) => {
     try {
+      console.log("ENTERED THE REFRESHaCCESStOKEN IN CLINET SIDE")
       const response = await authService.refreshAccessTokenService();
       console.log("The response while refreshing token is", response);
       return response.data;

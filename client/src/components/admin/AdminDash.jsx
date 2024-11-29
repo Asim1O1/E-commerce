@@ -29,23 +29,6 @@ const AdminDashboard = () => {
     setShowAddProductForm(false);
   };
 
-  const orderData = [
-    {
-      id: "ORD-12345",
-      customer: "John Doe",
-      status: "Pending",
-      total: 249.98,
-      date: "2024-03-15",
-    },
-    {
-      id: "ORD-12346",
-      customer: "Jane Smith",
-      status: "Shipped",
-      total: 149.99,
-      date: "2024-03-14",
-    },
-  ];
-
   const filteredProducts = productData.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -215,43 +198,6 @@ const AdminDashboard = () => {
               </div>
             </div>
           )}
-        </section>
-
-        {/* Orders Section */}
-        <section className="mt-8 bg-white shadow-md rounded-lg p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">Orders</h2>
-            <Link
-              to="/admin/orders"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-            >
-              View All Orders
-            </Link>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-gray-100 border-b">
-                <tr>
-                  <th className="p-4">Order ID</th>
-                  <th className="p-4">Customer</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4">Total</th>
-                  <th className="p-4">Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orderData.map((order) => (
-                  <tr key={order.id} className="border-b hover:bg-gray-50">
-                    <td className="p-4">{order.id}</td>
-                    <td className="p-4">{order.customer}</td>
-                    <td className="p-4">{order.status}</td>
-                    <td className="p-4">${order.total.toFixed(2)}</td>
-                    <td className="p-4">{order.date}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
         </section>
       </main>
     </div>

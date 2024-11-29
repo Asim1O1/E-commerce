@@ -123,10 +123,6 @@ const productSlice = createSlice({
             product._id === updatedProduct._id ? updatedProduct : product
           );
         } else {
-          console.error(
-            "State.products is not an array, resetting to empty array"
-          );
-
           state.products = Array.isArray(state.products) ? state.products : [];
 
           state.products = state.products.map((product) =>

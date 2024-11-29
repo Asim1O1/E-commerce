@@ -26,6 +26,7 @@ const sidebarItems = [
     icon: <ShoppingCart size={20} />,
     label: "Orders",
     key: "orders",
+    link: "/admin/orders",
   },
   {
     icon: <Settings size={20} />,

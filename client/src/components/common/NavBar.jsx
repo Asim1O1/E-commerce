@@ -12,7 +12,7 @@ const NavBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { isAuthenticated } = useSelector((state) => state.auth);
-  console.log("The auth status is", isAuthenticated);
+
   useEffect(() => {
     if (!isAuthenticated) {
       dispatch(checkAuth());
@@ -56,10 +56,10 @@ const NavBar = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <NavLink href="#">Home</NavLink>
-            <NavLink href="#">Shop</NavLink>
-            <NavLink href="#">Categories</NavLink>
-            <NavLink href="#">About</NavLink>
+            <NavLink href="/">Home</NavLink>
+            <NavLink href="/products">Shop</NavLink>
+            <NavLink href="/categories">Categories</NavLink>
+            <NavLink href="/about">About</NavLink>
           </nav>
 
           <div className="hidden md:flex items-center space-x-6">

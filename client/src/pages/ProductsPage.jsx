@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Filter,
   X,
@@ -8,8 +8,12 @@ import {
   List,
   Search,
 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllProducts } from "../features/products/productSlice";
+import { Link } from "react-router-dom";
 
 const ProductsPage = () => {
+  const dispatch = useDispatch();
   const [view, setView] = useState("grid");
   const [showFilters, setShowFilters] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -32,59 +36,24 @@ const ProductsPage = () => {
     { id: "over-200", name: "Over $200" },
   ];
 
-  const products = [
-    {
-      id: 1,
-      name: "Classic White T-Shirt",
-      price: 29.99,
-      rating: 4.5,
-      reviews: 128,
-      category: "men",
-      tags: ["New Arrival", "Bestseller"],
-    },
-    {
-      id: 2,
-      name: "Premium Leather Handbag",
-      price: 199.99,
-      rating: 4.8,
-      reviews: 89,
-      category: "accessories",
-      tags: ["Premium"],
-    },
-    {
-      id: 3,
-      name: "Summer Floral Dress",
-      price: 79.99,
-      rating: 4.6,
-      reviews: 156,
-      category: "women",
-      tags: ["Sale"],
-    },
-    // Add more products as needed
-  ];
+  useEffect(() => {
+    dispatch(getAllProducts({ page: 1, limit: 10 }));
+  }, [dispatch]);
 
-  // Repeat products array to simulate more items
-  const allProducts = [...products, ...products, ...products, ...products].map(
-    (product, index) => ({
-      ...product,
-      id: index + 1,
-    })
-  );
+  const products = useSelector((state) => state.product.products.data);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">All Products</h1>
             <p className="text-gray-600 mt-1">
-              Showing {allProducts.length} results
+              Showing {products?.length || 0} results
             </p>
           </div>
 
           <div className="flex items-center space-x-4 mt-4 md:mt-0">
-            {/* View Toggle */}
             <div className="flex items-center space-x-2 border rounded-lg p-1">
               <button
                 onClick={() => setView("grid")}
@@ -103,8 +72,6 @@ const ProductsPage = () => {
                 <List className="h-5 w-5 text-gray-600" />
               </button>
             </div>
-
-            {/* Sort Dropdown */}
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
@@ -124,7 +91,7 @@ const ProductsPage = () => {
           <div
             className={`w-full md:w-64 space-y-6 ${
               showFilters ? "block" : "hidden md:block"
-            }`}
+            } sticky top-4 self-start`}
           >
             {/* Search */}
             <div className="relative">
@@ -176,31 +143,6 @@ const ProductsPage = () => {
                 ))}
               </div>
             </div>
-
-            {/* Ratings Filter */}
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h2 className="font-semibold text-gray-900 mb-4">Rating</h2>
-              <div className="space-y-2">
-                {[4, 3, 2, 1].map((rating) => (
-                  <label key={rating} className="flex items-center">
-                    <input type="checkbox" className="text-blue-600" />
-                    <div className="ml-2 flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${
-                            i < rating
-                              ? "text-yellow-400 fill-current"
-                              : "text-gray-300"
-                          }`}
-                        />
-                      ))}
-                      <span className="ml-2 text-gray-600">& Up</span>
-                    </div>
-                  </label>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* Products Grid */}
@@ -212,71 +154,84 @@ const ProductsPage = () => {
                   : "space-y-4"
               }
             >
-              {allProducts.map((product) => (
+              {products?.map((product) => (
                 <div
-                  key={product.id}
-                  className={`bg-white rounded-lg shadow-sm overflow-hidden
-                    ${view === "grid" ? "" : "flex"}`}
+                  key={product._id}
+                  className={`bg-white rounded-lg shadow-sm overflow-hidden ${
+                    view === "grid" ? "" : "flex"
+                  }`}
                 >
-                  <div
-                    className={`aspect-square bg-gray-100
-                    ${view === "grid" ? "w-full" : "w-48"}`}
+                  <Link
+                    to={`/productDetail/${product._id}`}
+                    className="block cursor-pointer" // Added cursor-pointer to make the cursor change to a pointer
                   >
-                    <img
-                      src="/api/placeholder/300/300"
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="p-4 flex flex-col flex-1">
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900">
-                        {product.name}
-                      </h3>
-                      <div className="flex items-center mt-2">
-                        <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`h-4 w-4 ${
-                                i < Math.floor(product.rating)
-                                  ? "text-yellow-400 fill-current"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="ml-2 text-sm text-gray-600">
-                          ({product.reviews})
-                        </span>
-                      </div>
-                      {product.tags && (
-                        <div className="flex gap-2 mt-2">
-                          {product.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
-                            >
-                              {tag}
-                            </span>
-                          ))}
+                    <div
+                      className={`aspect-square bg-gray-100 ${
+                        view === "grid" ? "w-full" : "w-48"
+                      }`}
+                    >
+                      {product.imageUrl ? (
+                        <img
+                          src={product.imageUrl}
+                          alt={product.name}
+                          className="w-full h-full object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
+                          <span className="text-gray-400 text-xs">
+                            No image
+                          </span>
                         </div>
                       )}
                     </div>
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className="text-lg font-bold text-gray-900">
-                        ${product.price}
-                      </span>
-                      <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
-                        Add to Cart
-                      </button>
+                    <div className="p-4 flex flex-col flex-1">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900">
+                          {product.name}
+                        </h3>
+                        <div className="flex items-center mt-2">
+                          <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-4 w-4 ${
+                                  i < Math.floor(product.rating)
+                                    ? "text-yellow-400 fill-current"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="ml-2 text-sm text-gray-600">
+                            ({product.reviews})
+                          </span>
+                        </div>
+                        {product.tags && (
+                          <div className="flex gap-2 mt-2">
+                            {product.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="mt-4 flex items-center justify-between">
+                        <span className="text-lg font-bold text-gray-900">
+                          ${product.price}
+                        </span>
+                        <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                          Add to Cart
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </div>
               ))}
             </div>
-
-            {/* Pagination */}
             <div className="mt-8 flex justify-center">
               <nav className="flex items-center space-x-2">
                 <button className="px-3 py-2 border rounded hover:bg-gray-50">
@@ -286,12 +241,9 @@ const ProductsPage = () => {
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`px-3 py-2 border rounded
-                      ${
-                        currentPage === page
-                          ? "bg-blue-600 text-white"
-                          : "hover:bg-gray-50"
-                      }`}
+                    className={`px-3 py-2 border rounded ${
+                      currentPage === page ? "bg-blue-600 text-white" : ""
+                    }`}
                   >
                     {page}
                   </button>

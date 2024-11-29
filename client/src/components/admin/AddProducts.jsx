@@ -179,10 +179,10 @@ const AddProducts = ({ onClose }) => {
                     <option value="" disabled>
                       Select category
                     </option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Clothing">Clothing</option>
-                    <option value="Home">Home</option>
-                    <option value="Books">Books</option>
+                    <option value="Nike">Nike</option>
+                    <option value="Puma">Puma</option>
+                    <option value="New Balance">New Balance</option>
+                    <option value="Adidas">Adidas</option>
                   </select>
                 </div>
 

@@ -21,6 +21,7 @@ import AdminOrders from "./components/admin/AdminOrders.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 import CategoriesPage from "./pages/Categories.jsx";
 import ShopPage from "./pages/ShopPage.jsx";
+import CartPage from "./pages/CartPage.jsx";
 
 function App() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -39,10 +40,11 @@ function App() {
           <Route path="/" element={<UserLayout />}>
             <Route index element={<HomePage />} />
             <Route path="products" element={<ProductsPage />} />
-            <Route path="productDetail" element={<ProductDetailPage />} />
+            <Route path="productDetail/:id" element={<ProductDetailPage />} />
             <Route path="about" element={<AboutPage />} />
             <Route path="categories" element={<CategoriesPage />} />
             <Route path="shopPage" element={<ShopPage />} />
+            <Route path="cart" element={<CartPage />} />
           </Route>
 
           {/* Authentication Routes */}

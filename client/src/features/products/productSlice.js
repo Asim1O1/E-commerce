@@ -2,8 +2,11 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import productService, {
   deleteSingleProductService,
   getAllProductService,
+  getSingleProductService,
   updateProductsService,
 } from "../../services/productService";
+
+// Thunks for each product operation
 
 export const createProduct = createAsyncThunk(
   "products/createProduct",
@@ -26,7 +29,6 @@ export const getAllProducts = createAsyncThunk(
       console.log("ENTERED THE GET ALL PRODUCTS THUNK API");
       const response = await getAllProductService(page, limit, category);
       console.log("Fetched products:", response);
-
       return response?.Result;
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -35,8 +37,23 @@ export const getAllProducts = createAsyncThunk(
   }
 );
 
+export const getSingleProduct = createAsyncThunk(
+  "products/fetchSingle",
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      console.log("ENTERED THE GET SINGLE PRODUCT THUNK API");
+      const response = await getSingleProductService(id);
+      console.log("Fetched product:", response);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching product:", error);
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const deleteSingleProduct = createAsyncThunk(
-  "products/deleteSingleProduct", // The action type
+  "products/deleteSingleProduct",
   async (id, { rejectWithValue }) => {
     try {
       const response = await deleteSingleProductService(id);
@@ -51,9 +68,11 @@ export const deleteSingleProduct = createAsyncThunk(
 export const updateProduct = createAsyncThunk(
   "products/updateProduct",
   async ({ productId, newProductData }, { rejectWithValue }) => {
-    console.log("Received data in updateProduct thunk:");
-    console.log("Product ID:", productId);
-    console.log("Updated Product Data:", newProductData);
+    console.log(
+      "Received data in updateProduct thunk:",
+      productId,
+      newProductData
+    );
 
     try {
       const response = await updateProductsService(productId, newProductData);
@@ -68,69 +87,83 @@ export const updateProduct = createAsyncThunk(
 const productSlice = createSlice({
   name: "products",
   initialState: {
-    products: [],
+    products: [], // List of products for getAllProducts
+    product: null, // Single product fetched by getSingleProduct
     loading: false,
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-
-      // FOR CREATE PRODUCT
+      // CREATE PRODUCT
       .addCase(createProduct.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(createProduct.fulfilled, (state, action) => {
-        console.log(
-          "The action payload in the createProduct is",
-          action.payload
-        );
         state.loading = false;
-
         state.products = action.payload.IsSuccess
           ? action?.payload?.Result?.product_data
-          : null;
-        console.log(state.products);
+          : [];
       })
       .addCase(createProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // FOR GET ALL PRODUCTS
-      .addCase(getAllProducts.pending, (state, action) => {
+      // GET ALL PRODUCTS
+      .addCase(getAllProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(getAllProducts.fulfilled, (state, action) => {
-        console.log("Fetched products:", action);
         state.loading = false;
-        state.products = action.payload;
+        state.products = action.payload || [];
       })
       .addCase(getAllProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // FOR UPDATE PRODUCT
-      .addCase(updateProduct.fulfilled, (state, action) => {
-        console.log("The updated product is:", action.payload);
-        const updatedProduct = action.payload.Result.product_data;
-
-        if (Array.isArray(state.products)) {
-          state.products = state.products.map((product) =>
-            product._id === updatedProduct._id ? updatedProduct : product
-          );
-        } else {
-          state.products = Array.isArray(state.products) ? state.products : [];
-
-          state.products = state.products.map((product) =>
-            product._id === updatedProduct._id ? updatedProduct : product
-          );
-        }
+      // GET SINGLE PRODUCT
+      .addCase(getSingleProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getSingleProduct.fulfilled, (state, action) => {
+        console.log("The action payload is", action.payload);
+        state.loading = false;
+        state.product = action.payload;
+      })
+      .addCase(getSingleProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to fetch product";
       })
 
+      // DELETE SINGLE PRODUCT
+      .addCase(deleteSingleProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteSingleProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        state.products = state.products.filter(
+          (product) => product._id !== action.payload._id
+        );
+      })
+      .addCase(deleteSingleProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // UPDATE PRODUCT
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        const updatedProduct = action.payload.Result.product_data;
+        state.loading = false;
+        state.products = state.products.map((product) =>
+          product._id === updatedProduct._id ? updatedProduct : product
+        );
+      })
       .addCase(updateProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;

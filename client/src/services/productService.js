@@ -47,8 +47,20 @@ export const getAllProductService = async (
     const response = await axios.get(`${Base_Backend_Url}/api/products/`, {
       params,
     });
-    console.log("The response from getAllProduct is", response);
+
     return response.data;
+  } catch (error) {
+    const formattedError = formatError(error);
+    console.log("The formatted error is", formattedError);
+    throw formattedError;
+  }
+};
+
+export const getSingleProductService = async (id) => {
+  try {
+    const response = await axios.get(`${Base_Backend_Url}/api/products/${id}`);
+    console.log("The response from getSingleProduct is", response);
+    return response;
   } catch (error) {
     console.log("The error from getAllProduct is", error);
     const formattedError = formatError(error);

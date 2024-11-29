@@ -15,14 +15,21 @@ import { useParams } from "react-router-dom";
 const ProductDetailPage = () => {
   const dispatch = useDispatch();
   const { id } = useParams();
-  useEffect(async () => {
-    if (id) {
-      console.log("ENTERED THE GET SINGLE PRODUCT");
-      await dispatch(getSingleProduct({ id }));
-    }
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (id) {
+        console.log("ENTERED THE GET SINGLE PRODUCT");
+        await dispatch(getSingleProduct({ id }));
+      }
+    };
+
+    fetchProduct();
   }, [id, dispatch]);
 
-  const product = useSelector((state) => state.product.product.Result);
+  const [quantity, setQuantity] = useState(1);
+  const [selectedTab, setSelectedTab] = useState("description");
+  const product = useSelector((state) => state.product.product);
 
   if (!product) {
     return (
@@ -32,11 +39,8 @@ const ProductDetailPage = () => {
     );
   }
 
-  const [selectedSize, setSelectedSize] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
-  const [quantity, setQuantity] = useState(1);
-  const [currentImage, setCurrentImage] = useState(0);
-  const [selectedTab, setSelectedTab] = useState("description");
+  // const [selectedSize, setSelectedSize] = useState("");
+  // const [selectedColor, setSelectedColor] = useState("");
 
   const relatedProducts = [
     { name: "Classic Polo Shirt", price: 44.99, rating: 4.6 },
@@ -68,7 +72,7 @@ const ProductDetailPage = () => {
             <div className="space-y-4">
               <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
                 <img
-                  src={product.imageUrl}
+                  src={product?.Result?.imageUrl}
                   className="w-full h-full object-cover"
                 />
                 <button className="absolute right-4 top-4 bg-white p-2 rounded-full shadow-lg">
@@ -113,13 +117,7 @@ const ProductDetailPage = () => {
               <div className="space-y-2">
                 <div className="flex items-center space-x-4">
                   <span className="text-3xl font-bold text-gray-900">
-                    ${product.price}
-                  </span>
-                  <span className="text-lg text-gray-500 line-through">
-                    ${product.originalPrice}
-                  </span>
-                  <span className="px-2 py-1 bg-red-100 text-red-700 text-sm font-medium rounded">
-                    Save ${(product.originalPrice - product.price).toFixed(2)}
+                    ${product?.Result?.price}
                   </span>
                 </div>
                 <p className="text-green-600 text-sm">In stock</p>
@@ -211,72 +209,72 @@ const ProductDetailPage = () => {
           </div>
 
           {/* Product Details Tabs */}
-          {/* <div className="mt-16">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8">
-              {["description", "features", "reviews"].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setSelectedTab(tab)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    selectedTab === tab
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </button>
-              ))}
-            </nav>
-          </div>
-
-          <div className="mt-8">
-            {selectedTab === "description" && (
-              <p className="text-gray-600">{product.description}</p>
-            )}
-            {selectedTab === "features" && (
-              <ul className="list-disc pl-5 space-y-2 text-gray-600">
-                {product.features.map((feature, index) => (
-                  <li key={index}>{feature}</li>
+          <div className="mt-16">
+            <div className="border-b border-gray-200">
+              <nav className="flex space-x-8">
+                {["description", "features", "reviews"].map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setSelectedTab(tab)}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                      selectedTab === tab
+                        ? "border-blue-500 text-blue-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </button>
                 ))}
-              </ul>
-            )}
-            {selectedTab === "reviews" && (
-              <div className="space-y-6">
-                {reviews.map((review, index) => (
-                  <div key={index} className="border-b pb-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`h-4 w-4 ${
-                                i < review.rating
-                                  ? "text-yellow-400 fill-current"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                          ))}
+              </nav>
+            </div>
+
+            <div className="mt-8">
+              {selectedTab === "description" && (
+                <p className="text-gray-600">{product.Result.description}</p>
+              )}
+              {selectedTab === "features" && (
+                <ul className="list-disc pl-5 space-y-2 text-gray-600">
+                  {product.features.map((feature, index) => (
+                    <li key={index}>{feature}</li>
+                  ))}
+                </ul>
+              )}
+              {selectedTab === "reviews" && (
+                <div className="space-y-6">
+                  {reviews.map((review, index) => (
+                    <div key={index} className="border-b pb-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-4 w-4 ${
+                                  i < review.rating
+                                    ? "text-yellow-400 fill-current"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="font-medium text-gray-900">
+                            {review.author}
+                          </span>
                         </div>
-                        <span className="font-medium text-gray-900">
-                          {review.author}
+                        <span className="text-sm text-gray-500">
+                          {review.date}
                         </span>
                       </div>
-                      <span className="text-sm text-gray-500">
-                        {review.date}
-                      </span>
+                      <p className="mt-2 text-gray-600">{review.comment}</p>
                     </div>
-                    <p className="mt-2 text-gray-600">{review.comment}</p>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div> */}
 
           {/* Related Products */}
-          <div className="mt-16">
+          {/* <div className="mt-16">
             <h2 className="text-2xl font-bold text-gray-900 mb-8">
               You may also like
             </h2>
@@ -305,7 +303,7 @@ const ProductDetailPage = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </>

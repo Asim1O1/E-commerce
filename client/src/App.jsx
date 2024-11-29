@@ -44,7 +44,7 @@ function App() {
             <Route path="about" element={<AboutPage />} />
             <Route path="categories" element={<CategoriesPage />} />
             <Route path="shopPage" element={<ShopPage />} />
-            <Route path="cart" element={<CartPage />} />
+            <Route path="cartPage" element={<CartPage />} />
           </Route>
 
           {/* Authentication Routes */}

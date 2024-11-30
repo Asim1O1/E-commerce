@@ -23,11 +23,11 @@ export const addToCartService = async ({ userId, productId, quantity }) => {
   }
 };
 
-export const getCartService = async () => {
+export const getCartService = async (userId) => {
   try {
-    const response = await axiosInstance.get(`${Base_Backend_Url}/api/cart`);
+    const response = await axiosInstance.get(`/api/cart/${userId}`);
     console.log("Cart data retrieved successfully:", response.data);
-    return response.data;
+    return response.data.Result;
   } catch (error) {
     console.log("Error while retrieving cart:", error);
     const formattedError = formatError(error);

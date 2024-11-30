@@ -22,10 +22,9 @@ const addProduct = async (productData) => {
         withCredentials: true,
       }
     );
-    console.log("The response while adding product is", response);
+
     return response;
   } catch (error) {
-    console.log("The error while adding product", error);
     const formattedError = formatError(error);
 
     throw formattedError;
@@ -37,7 +36,6 @@ export const getAllProductService = async (
   limit = 10,
   category = ""
 ) => {
-  console.log("ENTERED THE GET ALL PRODUCT SERVICE");
   try {
     const params = {
       page,
@@ -51,7 +49,7 @@ export const getAllProductService = async (
     return response.data;
   } catch (error) {
     const formattedError = formatError(error);
-    console.log("The formatted error is", formattedError);
+
     throw formattedError;
   }
 };
@@ -59,44 +57,38 @@ export const getAllProductService = async (
 export const getSingleProductService = async (id) => {
   try {
     const response = await axios.get(`${Base_Backend_Url}/api/products/${id}`);
-    console.log("The response from getSingleProduct is", response);
+
     return response;
   } catch (error) {
-    console.log("The error from getAllProduct is", error);
     const formattedError = formatError(error);
-    console.log("The formatted error is", formattedError);
+
     throw formattedError;
   }
 };
 
 export const deleteSingleProductService = async (id) => {
   try {
-    console.log("The id of the selected product is", id);
     const response = await axiosInstance.delete(`/api/products/${id}`);
 
-    console.log("The response while deleting product is", response);
     return response;
   } catch (error) {
-    console.log("The error while deleting product", error);
     const formattedError = formatError(error);
-    console.log("The formatted error is", formattedError);
+
     throw formattedError;
   }
 };
 
 export const updateProductsService = async (id, productData) => {
   try {
-    console.log("SENDING THE PRODUCT DATA FOR UPDATION", productData);
     const response = await axiosInstance.put(
       `/api/products/${id}`,
       productData
     );
-    console.log("The response while updating product is", response);
+
     return response;
   } catch (error) {
-    console.log("The error while updating product", error);
     const formattedError = formatError(error);
-    console.log("The formatted error is", formattedError);
+
     throw formattedError;
   }
 };

@@ -39,11 +39,18 @@ export const addToCart = createAsyncThunk(
 // Get Cart
 export const getCart = createAsyncThunk(
   "cart/getCart",
-  async (_, { rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
+    const userId = getState()?.auth;
+    console.log("The user id while getting", userId);
+    if (!userId) {
+      throw new Error("User not logged in");
+    }
+
     try {
-      const response = await getCartService();
+      console.log("ENTERED THE THUNK FOR GET SINGLR CART");
+      const response = await getCartService(userId);
       console.log("Cart retrieved:", response);
-      return response?.data;
+      return response;
     } catch (error) {
       console.error("Error fetching cart:", error.message);
       return rejectWithValue(error.message);
@@ -86,7 +93,6 @@ const initialState = {
   cart: null,
   loading: false,
   error: null,
-  successMessage: null,
 };
 
 // Cart Slice
@@ -105,7 +111,6 @@ const cartSlice = createSlice({
       .addCase(addToCart.pending, (state) => {
         state.loading = true;
         state.error = null;
-        state.successMessage = null;
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.loading = false;
@@ -113,6 +118,10 @@ const cartSlice = createSlice({
         state.cart = action.payload;
       })
       .addCase(addToCart.rejected, (state, action) => {
+        console.log(
+          "THE ACTION PAYLOAD IN GET CART IS REJECTED",
+          action.payload
+        );
         state.loading = false;
         state.error = action.payload;
       });
@@ -124,6 +133,7 @@ const cartSlice = createSlice({
         state.error = null;
       })
       .addCase(getCart.fulfilled, (state, action) => {
+        console.log("THE ACTION PAYLOAD IN GET CART IS", action.payload);
         state.loading = false;
         state.cart = action.payload;
       })

@@ -12,7 +12,6 @@ const register = async (userData) => {
     );
     return response.data;
   } catch (error) {
-    console.log("The error is", error.response?.data?.ErrorMessage[0].message);
     console.error(
       "Registration error:",
       error.response?.data?.ErrorMessage || error.message
@@ -38,16 +37,14 @@ const login = async (credentials) => {
 
     return response.data;
   } catch (error) {
-    console.log("The error in the login service is", error);
     const formattedError = formatError(error);
-    console.log("The formatted error is", formattedError);
+
     throw formattedError;
   }
 };
 // LOGOUT SERVICE
 const logout = async () => {
   try {
-    console.log("entered the logout service");
     await axiosInstance.post(`/api/auth/logout`);
   } catch (error) {
     console.error(
@@ -68,7 +65,7 @@ export const checkAuth = async () => {
     const response = await axios.get(`${Base_Backend_Url}/api/auth/checkAuth`, {
       withCredentials: true,
     });
-    console.log("THE CHECK AUTHHHHHHHHHHHHH", response);
+
     return response.data;
   } catch (error) {
     console.error("CheckAuth error:", error.message);
@@ -78,7 +75,6 @@ export const checkAuth = async () => {
 
 export const refreshAccessTokenService = async () => {
   try {
-    console.log("ENTERED THE REFRESH ACCESS TOKEN SERVICE");
     const response = await axios.post(
       `${Base_Backend_Url}/api/auth/refresh-token`,
       {},
@@ -86,7 +82,7 @@ export const refreshAccessTokenService = async () => {
         withCredentials: true,
       }
     );
-    console.log("The response while refreshing is", response);
+
     return response.data;
   } catch (error) {
     throw new Error(

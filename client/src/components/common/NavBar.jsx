@@ -17,8 +17,7 @@ const NavBar = () => {
     const checkUserAuth = async () => {
       if (!isAuthenticated) {
         try {
-          const response = await dispatch(checkAuth()); // Await the dispatch if it's async
-          console.log("The response is ", response);
+          const response = await dispatch(checkAuth());
         } catch (error) {
           console.error("Error checking auth:", error);
         }
@@ -97,9 +96,12 @@ const NavBar = () => {
                   </div>
                 </Link>
                 <div className="relative">
-                  <div className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                    <ShoppingCart className="h-6 w-6 text-gray-700 hover:text-blue-600 transition-colors duration-200" />
-                  </div>
+                  <Link to={"/cartPage"}>
+                    <div className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                      <ShoppingCart className="h-6 w-6 text-gray-700 hover:text-blue-600 transition-colors duration-200" />
+                    </div>
+                  </Link>
+
                   <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center transform transition-transform duration-200 hover:scale-110">
                     3
                   </span>
@@ -135,25 +137,25 @@ const NavBar = () => {
       <div className={`md:hidden ${isMobileMenuOpen ? "block" : "hidden"}`}>
         <div className="px-2 pt-2 pb-3 space-y-1">
           <a
-            href="#"
+            href="/"
             className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200"
           >
             Home
           </a>
           <a
-            href="#"
+            href="/products"
             className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200"
           >
             Shop
           </a>
           <a
-            href="#"
+            href="/categories"
             className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200"
           >
             Categories
           </a>
           <a
-            href="#"
+            href="/about"
             className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200"
           >
             About

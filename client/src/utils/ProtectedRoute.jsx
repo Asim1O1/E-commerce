@@ -53,7 +53,7 @@ function CheckAuth({ role, children }) {
   if (role === "admin") {
     // Admin trying to access user pages
     if (user?.role === "admin" && !location.pathname.includes("/admin")) {
-      return <Navigate to="/admin" />;
+      return <Navigate to="/login" />;
     }
   }
   // Redirect non-admin users from admin routes

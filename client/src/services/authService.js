@@ -78,7 +78,7 @@ export const checkAuth = async () => {
 
 export const refreshAccessTokenService = async () => {
   try {
-    console.log("ENTERED THE REFRESH ACCESS TOKEN SERVICE")
+    console.log("ENTERED THE REFRESH ACCESS TOKEN SERVICE");
     const response = await axios.post(
       `${Base_Backend_Url}/api/auth/refresh-token`,
       {},
@@ -99,6 +99,7 @@ const authService = {
   register,
   login,
   logout,
+  checkAuth,
   refreshAccessTokenService,
 };
 

@@ -22,14 +22,15 @@ import AboutPage from "./pages/AboutPage.jsx";
 import CategoriesPage from "./pages/Categories.jsx";
 import ShopPage from "./pages/ShopPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
+import UnauthPage from "./pages/UnAuthPage.jsx";
 
 function App() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(checkAuth());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(checkAuth());
+  // }, [dispatch]);
 
   return (
     <>
@@ -37,7 +38,14 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* User Routes */}
-          <Route path="/" element={<UserLayout />}>
+          <Route
+            path="/"
+            element={
+              // <CheckAuth role="user">
+              <UserLayout />
+              // </CheckAuth>
+            }
+          >
             <Route index element={<HomePage />} />
             <Route path="products" element={<ProductsPage />} />
             <Route path="productDetail/:id" element={<ProductDetailPage />} />
@@ -50,22 +58,57 @@ function App() {
           {/* Authentication Routes */}
           <Route
             path="/login"
-            element={isAuthenticated ? <Navigate to="/" /> : <LoginPage />}
+            element={
+              isAuthenticated ? (
+                user?.role === "admin" ? (
+                  <Navigate to="/admin" />
+                ) : (
+                  <Navigate to="/" />
+                )
+              ) : (
+                <LoginPage />
+              )
+            }
           />
           <Route
             path="/register"
-            element={isAuthenticated ? <Navigate to="/" /> : <RegisterPage />}
+            element={
+              isAuthenticated ? (
+                user?.role === "admin" ? (
+                  <Navigate to="/admin" />
+                ) : (
+                  <Navigate to="/" />
+                )
+              ) : (
+                <RegisterPage />
+              )
+            }
           />
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={<AdminLayout />}>
+          {/* Admin Routes - Protected */}
+          <Route
+            path="/admin"
+            element={
+              <CheckAuth role="admin">
+                <AdminLayout />
+              </CheckAuth>
+            }
+          >
             <Route index element={<AdminDashboard />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="orders" element={<AdminOrders />} />
           </Route>
-          <Route path="/addProduct" element={<AddProducts />} />
+          <Route
+            path="/addProduct"
+            element={
+              <CheckAuth role="admin">
+                <AddProducts />
+              </CheckAuth>
+            }
+          />
 
           {/* 404 Page */}
+          <Route path="/unauth-page" element={<UnauthPage />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </BrowserRouter>

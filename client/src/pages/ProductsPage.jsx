@@ -7,11 +7,15 @@ import {
   GridIcon,
   List,
   Search,
+  HandPlatter,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProducts } from "../features/products/productSlice";
 import { Link } from "react-router-dom";
+import { addToCart } from "../features/cart/cartSlice";
+import { checkAuth } from "../features/auth/authSlice";
 
+import { toast } from "react-toastify";
 const ProductsPage = () => {
   const dispatch = useDispatch();
   const [view, setView] = useState("grid");
@@ -39,6 +43,31 @@ const ProductsPage = () => {
   useEffect(() => {
     dispatch(getAllProducts({ page: 1, limit: 10 }));
   }, [dispatch]);
+
+  const handleAddToCart = async (productId, quantity) => {
+    try {
+      const result = await dispatch(
+        addToCart({ productId, quantity })
+      ).unwrap();
+      console.log("Product added to cart:", result);
+
+      if (result.IsSuccess || result.StatusCode === 200) {
+        toast.success(
+          result.Result?.message || "Product Successfully added to cart"
+        );
+      } else {
+        toast.error(
+          result.ErrorMessage[0].message || "SERVER ERROR: Couldn't add product"
+        );
+      }
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
+      toast.error(
+        error.message ||
+          "An unexpected error occurred while adding product to cart"
+      );
+    }
+  };
 
   const products = useSelector((state) => state.product.products.data);
 
@@ -227,7 +256,10 @@ const ProductsPage = () => {
                     </div>
                   </Link>
 
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                  <button
+                    onClick={() => handleAddToCart(product._id, 1)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                  >
                     Add to Cart
                   </button>
                 </div>

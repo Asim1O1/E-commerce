@@ -3,12 +3,16 @@ import { Base_Backend_Url } from "../constants";
 import formatError from "../utils/errorUtils";
 import axiosInstance from "../utils/axiosInstance";
 
-export const addToCartService = async (productId, quantity) => {
+export const addToCartService = async ({ userId, productId, quantity }) => {
   try {
-    const response = await axiosInstance.post(`${Base_Backend_Url}/api/cart/`, {
-      productId: productId,
-      quantity: quantity,
-    });
+    const response = await axiosInstance.post(
+      `/api/cart/${userId}`,
+      {
+        productId: productId,
+        quantity: quantity,
+      },
+      { withCredentials: true }
+    );
     console.log("The response from addToCart is", response);
     return response;
   } catch (error) {
@@ -18,6 +22,7 @@ export const addToCartService = async (productId, quantity) => {
     throw formattedError;
   }
 };
+
 export const getCartService = async () => {
   try {
     const response = await axiosInstance.get(`${Base_Backend_Url}/api/cart`);

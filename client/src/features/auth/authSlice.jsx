@@ -37,6 +37,7 @@ export const checkAuth = createAsyncThunk(
       console.log("The response in the checkAuth is", response);
       return response;
     } catch (error) {
+      console.log("Reached the error in the checkAuth", error);
       return rejectWithValue(
         error.response?.data || "Authentication check failed"
       );
@@ -61,7 +62,7 @@ export const refreshAccessToken = createAsyncThunk(
   "auth/refresh_token",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("ENTERED THE REFRESHaCCESStOKEN IN CLINET SIDE")
+      console.log("ENTERED THE REFRESHaCCESStOKEN IN CLINET SIDE");
       const response = await authService.refreshAccessTokenService();
       console.log("The response while refreshing token is", response);
       return response.data;

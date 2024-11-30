@@ -14,9 +14,18 @@ const NavBar = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      dispatch(checkAuth());
-    }
+    const checkUserAuth = async () => {
+      if (!isAuthenticated) {
+        try {
+          const response = await dispatch(checkAuth()); // Await the dispatch if it's async
+          console.log("The response is ", response);
+        } catch (error) {
+          console.error("Error checking auth:", error);
+        }
+      }
+    };
+
+    checkUserAuth();
   }, [dispatch, isAuthenticated]);
   const handleLogout = () => {
     dispatch(logoutUser());

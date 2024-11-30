@@ -1,22 +1,36 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
-  addToCartService,
   getCartService,
   removeFromCartService,
   updateCartService,
 } from "../../services/cartService";
+import cartService from "../../services/cartService";
+import { CloudLightning } from "lucide-react";
 
 // Async thunks for cart operations
 
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
-  async ({ productId, quantity }, { rejectWithValue }) => {
+  async ({ productId, quantity }, { getState, rejectWithValue }) => {
+    console.log("The product id and quantity is:::", productId, quantity);
+    const userId = getState().auth.user?._id;
+
+    if (!userId) {
+      throw new Error("User not logged in");
+    }
+
+    console.log("The user id while adding to cart", userId);
     try {
-      const response = await addToCartService(productId, quantity);
+      const response = await cartService.addToCartService({
+        userId,
+        productId,
+        quantity,
+      });
       console.log("The response while adding to cart", response);
       return response?.data;
     } catch (error) {
       console.error("Error adding to cart:", error.message);
+
       return rejectWithValue(error.message);
     }
   }

@@ -19,8 +19,45 @@ const cartSchema = new mongoose.Schema(
           required: true,
           min: 1,
         },
+        // Embedding product details in the cart
+        name: {
+          type: String,
+          required: true,
+        },
+        price: {
+          type: Number,
+          required: true,
+        },
+        imageUrl: {
+          type: String,
+          required: false,
+        },
+        totalPrice: {
+          type: Number,
+          required: true,
+        },
+        description: {
+          type: String,
+          required: true,
+        },
+        category: {
+          type: String,
+          required: true,
+        },
+        stock: {
+          type: Number,
+          required: true,
+        },
       },
     ],
+    totalQuantity: {
+      type: Number,
+      default: 0,
+    },
+    totalPrice: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

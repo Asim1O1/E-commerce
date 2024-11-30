@@ -9,12 +9,12 @@ import protectRoute from "../middlewares/protectRoute.js";
 
 const router = express.Router();
 
-router.post("/", protectRoute, addToCart);
+router.post("/:id/", protectRoute, addToCart);
 
-router.get("/", protectRoute, getCart);
+router.get("/:id/", protectRoute, getCart);
 
-router.put("/", protectRoute, updateCart);
+router.put("/:id/", protectRoute, updateCart);
 
-router.delete("/", protectRoute, removeFromCart);
+router.delete("/:id/", protectRoute, removeFromCart);
 
 export default router;

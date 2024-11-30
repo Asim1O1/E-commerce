@@ -4,20 +4,45 @@ import { createResponse } from "../utils/responseHelper.js";
 
 export const addToCart = async (req, res, next) => {
   const { productId, quantity } = req.body;
-  const userId = req.user.id;
+  const { id } = req.params;
+
+  console.log("Received userId from params:", id); // Log to check if id is correct
+  console.log("Received productId and quantity:", productId, quantity);
+
+  if (!productId || !quantity) {
+    return res
+      .status(400)
+      .json(
+        createResponse(
+          400,
+          false,
+          null,
+          "Product ID and quantity are required."
+        )
+      );
+  }
 
   try {
-    const cart = await Cart.findOne({ userId });
+    // Find the user's cart using the 'id' from the URL
+    const cart = await Cart.findOne({ userId: id });
+
+    // Find the product being added to the cart
     const product = await Product.findById(productId);
 
     if (!product) {
       return res
         .status(404)
         .json(
-          createResponse(404, false, "The requested product does not exist.")
+          createResponse(
+            404,
+            false,
+            null,
+            "The requested product does not exist."
+          )
         );
     }
 
+    // Check if enough stock is available
     if (product.stock < quantity) {
       return res
         .status(400)
@@ -25,50 +50,73 @@ export const addToCart = async (req, res, next) => {
           createResponse(
             400,
             false,
+            null,
             "Insufficient stock available for the requested product."
           )
         );
     }
 
+    // Product details to be added to the cart
+    const productDetails = {
+      productId: product._id,
+      quantity,
+      name: product.name,
+      price: product.price,
+      imageUrl: product.imageUrl,
+      totalPrice: product.price * quantity,
+      description: product.description,
+      category: product.category,
+      stock: product.stock,
+    };
+
     if (cart) {
+      // Check if the product already exists in the cart
       const existingProduct = cart.products.find(
         (item) => item.productId.toString() === productId
       );
 
       if (existingProduct) {
+        // If the product already exists, update the quantity and totalPrice
         existingProduct.quantity += quantity;
+        existingProduct.totalPrice = existingProduct.quantity * product.price;
       } else {
-        cart.products.push({ productId, quantity });
+        // If the product is new to the cart, add it to the cart
+        cart.products.push(productDetails);
       }
 
+      // Recalculate total quantity and price for the entire cart
+      cart.totalQuantity = cart.products.reduce(
+        (total, item) => total + item.quantity,
+        0
+      );
+      cart.totalPrice = cart.products.reduce(
+        (total, item) => total + item.totalPrice,
+        0
+      );
+
       await cart.save();
-      return res
-        .status(200)
-        .json(
-          createResponse(
-            200,
-            true,
-            [],
-            "Product successfully added to your cart."
-          )
-        );
+      return res.status(200).json(
+        createResponse(200, true, [], {
+          message: "Product successfully added to your cart.",
+          cart_data: cart,
+        })
+      );
     } else {
       const newCart = new Cart({
-        userId,
-        products: [{ productId, quantity }],
+        userId: id, // Use 'id' from the params
+        products: [productDetails],
+        totalQuantity: quantity,
+        totalPrice: productDetails.totalPrice,
       });
 
       await newCart.save();
-      return res
-        .status(201)
-        .json(
-          createResponse(
-            201,
-            true,
-            [],
-            "A new cart has been created and the product has been successfully added."
-          )
-        );
+      return res.status(201).json(
+        createResponse(201, true, [], {
+          message:
+            "A new cart has been created and the product has been successfully added.",
+          cart_data: newCart,
+        })
+      );
     }
   } catch (error) {
     console.error("Error occurred while adding to cart:", error);
@@ -78,6 +126,7 @@ export const addToCart = async (req, res, next) => {
         createResponse(
           500,
           false,
+          null,
           "An error occurred while processing your request.",
           error.message
         )
@@ -89,7 +138,7 @@ export const getCart = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    const cart = await Cart.findOne({ userId }).populate("products.productId");
+    const cart = await Cart.findOne({ userId });
 
     if (!cart || cart.products.length === 0) {
       return res
@@ -150,8 +199,19 @@ export const removeFromCart = async (req, res) => {
         );
     }
 
+    // Remove the product from the cart
     cart.products = cart.products.filter(
       (item) => item.productId.toString() !== productId
+    );
+
+    // Recalculate the total price and quantity
+    cart.totalQuantity = cart.products.reduce(
+      (total, item) => total + item.quantity,
+      0
+    );
+    cart.totalPrice = cart.products.reduce(
+      (total, item) => total + item.totalPrice,
+      0
     );
 
     await cart.save();
@@ -239,28 +299,38 @@ export const updateCart = async (req, res) => {
         );
     }
 
+    // If the quantity is 0, remove the product from the cart
     if (quantity === 0) {
       cart.products = cart.products.filter(
         (item) => item.productId.toString() !== productId
       );
-      await cart.save();
-      return res
-        .status(200)
-        .json(createResponse(200, true, [], "Product removed from your cart."));
     } else {
+      // Update the product quantity and recalculate totalPrice
       productInCart.quantity = quantity;
-      await cart.save();
-      return res
-        .status(200)
-        .json(
-          createResponse(
-            200,
-            true,
-            [],
-            "Cart updated successfully with the new quantity."
-          )
-        );
+      productInCart.totalPrice = productInCart.quantity * productInCart.price;
     }
+
+    // Recalculate total quantity and total price for the entire cart
+    cart.totalQuantity = cart.products.reduce(
+      (total, item) => total + item.quantity,
+      0
+    );
+    cart.totalPrice = cart.products.reduce(
+      (total, item) => total + item.totalPrice,
+      0
+    );
+
+    await cart.save();
+    return res
+      .status(200)
+      .json(
+        createResponse(
+          200,
+          true,
+          [],
+          "Cart updated successfully with the new quantity."
+        )
+      );
   } catch (error) {
     console.error("Error occurred while updating the cart:", error);
     return res

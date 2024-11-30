@@ -144,15 +144,16 @@ export const getProductById = async (req, res) => {
 // UPDATE PRODUCT
 export const updateProduct = async (req, res) => {
   try {
-    console.log("Th req params is", req.params)
+    console.log("Th req params is", req.params);
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res
         .status(400)
         .json(createResponse(400, false, "Invalid product ID", []));
     }
-    console.log("The id is", id);
+
     const updates = req.body;
+    console.log("The updates are ", updates);
 
     const product = await Product.findById(id);
     if (!product) {

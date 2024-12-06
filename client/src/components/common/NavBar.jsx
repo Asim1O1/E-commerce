@@ -48,7 +48,7 @@ const NavBar = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              LOGO
+              E-COMMERCE
             </span>
           </div>
 
@@ -67,7 +67,7 @@ const NavBar = () => {
           <nav className="hidden md:flex space-x-8">
             <NavLink to="/">Home</NavLink>
             <NavLink to="/products">Shop</NavLink>
-            <NavLink to="/categories">Categories</NavLink>
+
             <NavLink to="/about">About</NavLink>
           </nav>
 
@@ -148,12 +148,7 @@ const NavBar = () => {
           >
             Shop
           </Link>
-          <Link
-            to="/categories"
-            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200"
-          >
-            Categories
-          </Link>
+
           <Link
             to="/about"
             className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200"

@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 const AddProducts = ({ onClose }) => {
   const dispatch = useDispatch();
 
-  const [productData, setProductData] = useState({
+  const initialProductData = {
     name: "",
     category: "",
     price: "",
@@ -17,7 +17,8 @@ const AddProducts = ({ onClose }) => {
     stock: "",
     image: null,
     fileName: "",
-  });
+  }
+  const [productData, setProductData] = useState(initialProductData);
   const [errors, setErrors] = useState({});
 
   const validateForm = () => {
@@ -62,7 +63,9 @@ const AddProducts = ({ onClose }) => {
         const response = await dispatch(createProduct(productData));
 
         if (response.payload.StatusCode === 201) {
+          setProductData(initialProductData);
           toast.success("Product added successfully!");
+
         } else {
           const errorMessage =
             response.payload?.details?.ErrorMessage[0]?.message ||

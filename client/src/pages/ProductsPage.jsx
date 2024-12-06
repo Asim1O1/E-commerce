@@ -6,13 +6,14 @@ import { Link } from "react-router-dom";
 import { addToCart } from "../features/cart/cartSlice";
 import { ClipLoader } from "react-spinners";
 import { toast } from "react-toastify";
+import Pagination from "../utils/Pagination";
 
 const ProductsPage = () => {
   const dispatch = useDispatch();
   const [view, setView] = useState("grid");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedPrice, setSelectedPrice] = useState("all");
-  const [sortBy, setSortBy] = useState("featured");
+  const { pagination } = useSelector((state) => state.product.products);
   const [currentPage, setCurrentPage] = useState(1);
 
   const { loading } = useSelector((state) => state.product);
@@ -31,11 +32,12 @@ const ProductsPage = () => {
     { id: "100-200", name: "$100 - $200", min: 100, max: 200 },
     { id: "over-200", name: "Over $200", min: 200, max: Infinity },
   ];
-
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
   useEffect(() => {
-    dispatch(getAllProducts({ page: currentPage, limit: 10 }));
+    dispatch(getAllProducts({ page: currentPage, limit: 12 }));
   }, [dispatch, currentPage]);
-
   const handleAddToCart = async (productId, quantity) => {
     try {
       const result = await dispatch(
@@ -58,7 +60,6 @@ const ProductsPage = () => {
     }
   };
   const products = useSelector((state) => state.product.products.data);
-  console.log("The products are ", products);
 
   const filteredProducts = products?.filter((product) => {
     const priceRange = priceRanges.find((range) => range.id === selectedPrice);
@@ -131,7 +132,7 @@ const ProductsPage = () => {
                     name="category"
                     checked={selectedCategory === category.id}
                     onChange={() => setSelectedCategory(category.id)}
-                    className="text-blue-600"
+                    className="text-blue-600 cursor-pointer"
                   />
                   <span className="ml-2 text-gray-600">{category.name}</span>
                   <span className="ml-auto text-gray-400 text-sm">
@@ -145,13 +146,13 @@ const ProductsPage = () => {
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <h2 className="font-semibold text-gray-900 mb-4">Price Range</h2>
               {priceRanges.map((range) => (
-                <label key={range.id} className="flex items-center">
+                <label key={range.id} className="flex items-center ">
                   <input
                     type="radio"
                     name="price"
                     checked={selectedPrice === range.id}
                     onChange={() => setSelectedPrice(range.id)}
-                    className="text-blue-600"
+                    className="text-blue-600 cursor-pointer"
                   />
                   <span className="ml-2 text-gray-600">{range.name}</span>
                 </label>
@@ -246,21 +247,11 @@ const ProductsPage = () => {
             )}
 
             {/* Pagination */}
-            <div className="mt-8 flex justify-center space-x-4 sticky bottom-0 bg-white z-10 border-t">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                className="px-4 py-2 border rounded-md hover:bg-gray-100"
-              >
-                Previous
-              </button>
-              <span className="self-center text-sm">{`Page ${currentPage}`}</span>
-              <button
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-                className="px-4 py-2 border rounded-md hover:bg-gray-100"
-              >
-                Next
-              </button>
-            </div>
+            <Pagination
+              currentPage={pagination?.currentPage}
+              totalPages={pagination?.totalPages}
+              onPageChange={handlePageChange}
+            />
           </div>
         </div>
       </div>

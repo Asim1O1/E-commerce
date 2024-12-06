@@ -3,6 +3,7 @@ import { Plus, Edit, Trash2, Search } from "lucide-react";
 
 import { Link } from "react-router-dom";
 import AddProducts from "./AddProducts";
+import Pagination from "../../utils/Pagination";
 
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProducts } from "../../features/products/productSlice";
@@ -13,13 +14,17 @@ const AdminDashboard = () => {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [showAddProductForm, setShowAddProductForm] = useState(false);
   const [productData, setProductData] = useState([]);
-
+  const [currentPage, setCurrentPage] = useState(1);
   const { products } = useSelector((state) => state.product);
-  console.log("The products are", products);
+  const { pagination } = useSelector((state) => state.product.products);
 
   useEffect(() => {
-    dispatch(getAllProducts({ page: 1, limit: 10, category: "" }));
-  }, [dispatch]);
+    dispatch(getAllProducts({ page: currentPage, limit: 10 }));
+  }, [dispatch, currentPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   useEffect(() => {
     if (products?.data) setProductData(products?.data);
@@ -198,6 +203,11 @@ const AdminDashboard = () => {
               </div>
             </div>
           )}
+          <Pagination
+            currentPage={pagination?.currentPage}
+            totalPages={pagination?.totalPages}
+            onPageChange={handlePageChange}
+          />
         </section>
       </main>
     </div>

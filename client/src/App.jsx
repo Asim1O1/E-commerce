@@ -19,7 +19,7 @@ import CheckAuth from "./utils/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import AdminOrders from "./components/admin/AdminOrders.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
-import CategoriesPage from "./pages/Categories.jsx";
+
 import ShopPage from "./pages/ShopPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import UnauthPage from "./pages/UnAuthPage.jsx";
@@ -51,7 +51,7 @@ function App() {
             <Route path="products" element={<ProductsPage />} />
             <Route path="productDetail/:id" element={<ProductDetailPage />} />
             <Route path="about" element={<AboutPage />} />
-            <Route path="categories" element={<CategoriesPage />} />
+
             <Route path="shopPage" element={<ShopPage />} />
             <Route path="cartPage" element={<CartPage />} />
           </Route>

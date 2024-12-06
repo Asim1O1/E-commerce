@@ -1,29 +1,21 @@
 import React, { useEffect, useState } from "react";
-import {
-  Filter,
-  X,
-  ChevronDown,
-  Star,
-  GridIcon,
-  List,
-  Search,
-  HandPlatter,
-} from "lucide-react";
+import { GridIcon, List, Search, Star } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProducts } from "../features/products/productSlice";
 import { Link } from "react-router-dom";
 import { addToCart } from "../features/cart/cartSlice";
-import { checkAuth } from "../features/auth/authSlice";
-
+import { ClipLoader } from "react-spinners";
 import { toast } from "react-toastify";
+
 const ProductsPage = () => {
   const dispatch = useDispatch();
   const [view, setView] = useState("grid");
-  const [showFilters, setShowFilters] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedPrice, setSelectedPrice] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const { loading } = useSelector((state) => state.product);
 
   const categories = [
     { id: "all", name: "All Categories", count: 234 },
@@ -41,16 +33,14 @@ const ProductsPage = () => {
   ];
 
   useEffect(() => {
-    dispatch(getAllProducts({ page: 1, limit: 10 }));
-  }, [dispatch]);
+    dispatch(getAllProducts({ page: currentPage, limit: 10 }));
+  }, [dispatch, currentPage]);
 
   const handleAddToCart = async (productId, quantity) => {
     try {
       const result = await dispatch(
         addToCart({ productId, quantity })
       ).unwrap();
-      console.log("Product added to cart:", result);
-
       if (result.IsSuccess || result.StatusCode === 200) {
         toast.success(
           result.Result?.message || "Product Successfully added to cart"
@@ -61,14 +51,12 @@ const ProductsPage = () => {
         );
       }
     } catch (error) {
-      console.error("Error adding product to cart:", error);
       toast.error(
         error.message ||
           "An unexpected error occurred while adding product to cart"
       );
     }
   };
-
   const products = useSelector((state) => state.product.products.data);
 
   return (
@@ -117,11 +105,7 @@ const ProductsPage = () => {
 
         <div className="flex flex-col md:flex-row gap-8">
           {/* Filters Sidebar */}
-          <div
-            className={`w-full md:w-64 space-y-6 ${
-              showFilters ? "block" : "hidden md:block"
-            } sticky top-4 self-start`}
-          >
+          <div className="w-full md:w-64 space-y-6 sticky top-4 self-start">
             {/* Search */}
             <div className="relative">
               <input
@@ -135,86 +119,84 @@ const ProductsPage = () => {
             {/* Categories */}
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <h2 className="font-semibold text-gray-900 mb-4">Categories</h2>
-              <div className="space-y-2">
-                {categories.map((category) => (
-                  <label key={category.id} className="flex items-center">
-                    <input
-                      type="radio"
-                      name="category"
-                      checked={selectedCategory === category.id}
-                      onChange={() => setSelectedCategory(category.id)}
-                      className="text-blue-600"
-                    />
-                    <span className="ml-2 text-gray-600">{category.name}</span>
-                    <span className="ml-auto text-gray-400 text-sm">
-                      ({category.count})
-                    </span>
-                  </label>
-                ))}
-              </div>
+              {categories.map((category) => (
+                <label key={category.id} className="flex items-center">
+                  <input
+                    type="radio"
+                    name="category"
+                    checked={selectedCategory === category.id}
+                    onChange={() => setSelectedCategory(category.id)}
+                    className="text-blue-600"
+                  />
+                  <span className="ml-2 text-gray-600">{category.name}</span>
+                  <span className="ml-auto text-gray-400 text-sm">
+                    ({category.count})
+                  </span>
+                </label>
+              ))}
             </div>
 
             {/* Price Ranges */}
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <h2 className="font-semibold text-gray-900 mb-4">Price Range</h2>
-              <div className="space-y-2">
-                {priceRanges.map((range) => (
-                  <label key={range.id} className="flex items-center">
-                    <input
-                      type="radio"
-                      name="price"
-                      checked={selectedPrice === range.id}
-                      onChange={() => setSelectedPrice(range.id)}
-                      className="text-blue-600"
-                    />
-                    <span className="ml-2 text-gray-600">{range.name}</span>
-                  </label>
-                ))}
-              </div>
+              {priceRanges.map((range) => (
+                <label key={range.id} className="flex items-center">
+                  <input
+                    type="radio"
+                    name="price"
+                    checked={selectedPrice === range.id}
+                    onChange={() => setSelectedPrice(range.id)}
+                    className="text-blue-600"
+                  />
+                  <span className="ml-2 text-gray-600">{range.name}</span>
+                </label>
+              ))}
             </div>
           </div>
 
           {/* Products Grid */}
           <div className="flex-1">
-            <div
-              className={
-                view === "grid"
-                  ? "grid grid-cols-1 md:grid-cols-3 gap-6"
-                  : "space-y-4"
-              }
-            >
-              {products?.map((product) => (
-                <div
-                  key={product._id}
-                  className={`bg-white rounded-lg shadow-sm overflow-hidden ${
-                    view === "grid" ? "" : "flex"
-                  }`}
-                >
-                  <Link
-                    to={`/productDetail/${product._id}`}
-                    className="block cursor-pointer"
+            {loading ? (
+              <div className="flex justify-center items-center">
+                <ClipLoader size={50} color="#0000ff" loading={loading} />
+              </div>
+            ) : (
+              <div
+                className={
+                  view === "grid"
+                    ? "grid grid-cols-1 md:grid-cols-3 gap-6"
+                    : "space-y-4"
+                }
+              >
+                {products?.map((product) => (
+                  <div
+                    key={product._id}
+                    className="bg-white rounded-lg shadow-sm overflow-hidden"
                   >
-                    <div
-                      className={`aspect-square bg-gray-100 ${
-                        view === "grid" ? "w-full" : "w-48"
-                      }`}
+                    <Link
+                      to={`/productDetail/${product._id}`}
+                      className="block cursor-pointer"
                     >
-                      {product.imageUrl ? (
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="w-full h-full object-cover rounded"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
-                          <span className="text-gray-400 text-xs">
-                            No image
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4 flex flex-col flex-1">
-                      <div className="flex-1">
+                      <div
+                        className={`aspect-square bg-gray-100 ${
+                          view === "grid" ? "w-full" : "w-48"
+                        }`}
+                      >
+                        {product.imageUrl ? (
+                          <img
+                            src={product.imageUrl}
+                            alt={product.name}
+                            className="w-full h-full object-cover rounded"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
+                            <span className="text-gray-400 text-xs">
+                              No image
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-4 flex flex-col flex-1">
                         <h3 className="font-medium text-gray-900">
                           {product.name}
                         </h3>
@@ -235,56 +217,40 @@ const ProductsPage = () => {
                             ({product.reviews})
                           </span>
                         </div>
-                        {product.tags && (
-                          <div className="flex gap-2 mt-2">
-                            {product.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
+                        <div className="mt-4 flex items-center justify-between">
+                          <span className="text-lg font-bold text-gray-900">
+                            ${product.price}
+                          </span>
+                        </div>
                       </div>
-                      <div className="mt-4 flex items-center justify-between">
-                        <span className="text-lg font-bold text-gray-900">
-                          ${product.price}
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
+                    </Link>
 
-                  <button
-                    onClick={() => handleAddToCart(product._id, 1)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-                  >
-                    Add to Cart
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="mt-8 flex justify-center">
-              <nav className="flex items-center space-x-2">
-                <button className="px-3 py-2 border rounded hover:bg-gray-50">
-                  Previous
-                </button>
-                {[1, 2, 3, 4, 5].map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`px-3 py-2 border rounded ${
-                      currentPage === page ? "bg-blue-600 text-white" : ""
-                    }`}
-                  >
-                    {page}
-                  </button>
+                    <button
+                      onClick={() => handleAddToCart(product._id, 1)}
+                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
                 ))}
-                <button className="px-3 py-2 border rounded hover:bg-gray-50">
-                  Next
-                </button>
-              </nav>
+              </div>
+            )}
+
+            {/* Pagination */}
+            <div className="mt-8 flex justify-center space-x-4">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className="px-4 py-2 border rounded-md hover:bg-gray-100"
+              >
+                Previous
+              </button>
+              <span className="self-center text-sm">{`Page ${currentPage}`}</span>
+              <button
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+                className="px-4 py-2 border rounded-md hover:bg-gray-100"
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>

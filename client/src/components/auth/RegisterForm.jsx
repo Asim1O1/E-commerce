@@ -18,7 +18,6 @@ const RegisterForm = () => {
     password: "",
   });
 
-  // const { fullName, userName, address, email, password } = formData;
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -78,30 +77,37 @@ const RegisterForm = () => {
     console.log("Submitting form data...");
 
     try {
-      const response = await dispatch(registerUser(formData));
-      console.log("Therespomns is", response);
+      const response = await dispatch(registerUser(formData)).unwrap();
+      console.log("The response in the register form:", response);
 
-      if (
-        response.payload.StatusCode === 200 &&
-        response.payload.IsSuccess === true
-      ) {
-        toast.success("Registration successful!");
+      // Check the response structure properly
+      if (response?.StatusCode === 200 && response?.IsSuccess === true) {
         navigate("/login");
+        console.log("Registration successful, navigating to login.");
+        toast.success("Registration successful!");
       } else {
-        console.log("Gone to else");
-        toast.error(response.payload || "Server Error. Please try again.");
+        console.log("Registration failed. Error response:", response);
+        toast.error(
+          response?.ErrorMessage?.[0]?.message ||
+            "Server Error. Please try again."
+        );
+        return response;
       }
     } catch (error) {
       console.error("Error during registration:", error);
-      toast.error(error.message);
 
       if (error.response && error.response.data) {
+        // Handle API-specific error responses
         toast.error(error.response.data.message || "An error occurred.");
+      } else if (error.message) {
+        // Handle general JavaScript errors
+        toast.error(error.message);
       } else {
+        // Fallback error message
         toast.error("An error occurred. Please try again later.");
       }
     } finally {
-      setLoading(false);
+      setLoading(false); // Ensure loading state is cleared no matter what
     }
   };
 

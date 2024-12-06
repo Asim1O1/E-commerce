@@ -26,11 +26,12 @@ import UnauthPage from "./pages/UnAuthPage.jsx";
 
 function App() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+  console.log("The is authenticates state at  inital ", isAuthenticated, user);
   const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   dispatch(checkAuth());
-  // }, [dispatch]);
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
 
   return (
     <>
@@ -41,9 +42,9 @@ function App() {
           <Route
             path="/"
             element={
-              // <CheckAuth role="user">
-              <UserLayout />
-              // </CheckAuth>
+              <CheckAuth role="user">
+                <UserLayout />
+              </CheckAuth>
             }
           >
             <Route index element={<HomePage />} />

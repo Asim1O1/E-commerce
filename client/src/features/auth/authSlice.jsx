@@ -24,7 +24,7 @@ export const registerUser = createAsyncThunk(
       const response = await authService.register(userData);
       return response;
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Registration failed");
+      return rejectWithValue(error || "Registration failed");
     }
   }
 );
@@ -34,8 +34,9 @@ export const checkAuth = createAsyncThunk(
   "auth/checkAuth",
   async (_, { rejectWithValue }) => {
     try {
+      console.log("ENTERED THE CHECK AUTH ");
       const response = await authService.checkAuth();
-
+      console.log("The resposne in the check auth is", response);
       return response;
     } catch (error) {
       return rejectWithValue(
@@ -114,7 +115,7 @@ const authSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(registerUser.fulfilled, (state) => {
-        state.isAuthenticated = true;
+        state.isAuthenticated = false;
         state.isLoading = false;
         state.user = null;
       })

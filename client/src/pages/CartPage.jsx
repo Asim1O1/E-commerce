@@ -2,13 +2,17 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Trash2, Plus, Minus, ShoppingBag, CreditCard } from "lucide-react";
 import Swal from "sweetalert2";
-import { getCart } from "../features/cart/cartSlice";
+import {
+  getCart,
+  removeFromCart,
+  updateCart,
+} from "../features/cart/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const CartPage = () => {
   const dispatch = useDispatch();
 
-  // Fetch cart from Redux
   useEffect(() => {
     const fetchCart = async () => {
       await dispatch(getCart()).unwrap();
@@ -19,25 +23,49 @@ const CartPage = () => {
   const cartProducts = useSelector((state) => state?.cart?.cart || []);
   const ourProducts = cartProducts.products || [];
 
-  // Calculate total dynamically
   const total = ourProducts.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0
   );
-
-  const handleQuantityChange = (productId, newQuantity) => {
+  const handleQuantityChange = async (productId, newQuantity) => {
     if (newQuantity <= 0) return;
 
-    Swal.fire({
-      title: "Update Quantity",
-      text: `New quantity for product ID ${productId}: ${newQuantity}`,
-      icon: "info",
-      timer: 1000,
-      showConfirmButton: false,
-    });
+    console.log("The product id and quantity", productId, newQuantity);
+
+    try {
+      await dispatch(updateCart({ productId, quantity: newQuantity })).unwrap();
+
+      await dispatch(getCart()).unwrap();
+
+      // Show success notification
+      toast.success(`The quantity has been updated to ${newQuantity}.`, {
+        position: "top-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } catch (error) {
+      // Show error notification
+      toast.error(
+        "There was an issue updating the quantity. Please try again.",
+        {
+          position: "top-right",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        }
+      );
+      console.error("Error updating quantity:", error);
+    }
   };
 
-  const handleRemoveProduct = (productId) => {
+  const handleRemoveProduct = async (productId) => {
     Swal.fire({
       title: "Remove from Cart?",
       text: "This item will be deleted from your cart",
@@ -46,15 +74,38 @@ const CartPage = () => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, remove it!",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: "Removed!",
-          text: "Item has been removed from your cart.",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-        });
+        try {
+          const response = await dispatch(removeFromCart(productId)).unwrap();
+          console.log("Product removed from cart:", response);
+          await dispatch(getCart()).unwrap();
+
+          // Show success message
+          toast.success("Item has been removed from your cart.", {
+            position: "top-right",
+            autoClose: 1500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        } catch (error) {
+          console.error("Error removing product from cart:", error);
+          toast.error(
+            "There was an issue removing the item. Please try again.",
+            {
+              position: "top-right",
+              autoClose: 1500,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+            }
+          );
+        }
       }
     });
   };
@@ -94,7 +145,7 @@ const CartPage = () => {
               >
                 <div className="flex items-center space-x-4">
                   <img
-                    src={item.imageUrl}
+                    src={item?.imageUrl}
                     alt={item.name}
                     className="w-24 h-24 object-cover rounded-lg shadow-md"
                   />
@@ -111,16 +162,22 @@ const CartPage = () => {
                   <div className="flex items-center border rounded-full">
                     <button
                       onClick={() =>
-                        handleQuantityChange(item._id, item.quantity - 1)
+                        handleQuantityChange(
+                          item?.productId,
+                          item?.quantity - 1
+                        )
                       }
                       className="p-2 hover:bg-gray-100 rounded-l-full"
                     >
                       <Minus size={16} />
                     </button>
-                    <span className="px-4">{item.quantity}</span>
+                    <span className="px-4">{item?.quantity}</span>
                     <button
                       onClick={() =>
-                        handleQuantityChange(item._id, item.quantity + 1)
+                        handleQuantityChange(
+                          item?.productId,
+                          item?.quantity + 1
+                        )
                       }
                       className="p-2 hover:bg-gray-100 rounded-r-full"
                     >
@@ -133,7 +190,7 @@ const CartPage = () => {
                   </span>
 
                   <button
-                    onClick={() => handleRemoveProduct(item._id)}
+                    onClick={() => handleRemoveProduct(item.productId)}
                     className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-full transition"
                   >
                     <Trash2 size={20} />

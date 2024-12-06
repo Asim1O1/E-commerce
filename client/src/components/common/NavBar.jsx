@@ -17,7 +17,7 @@ const NavBar = () => {
     const checkUserAuth = async () => {
       if (!isAuthenticated) {
         try {
-          const response = await dispatch(checkAuth());
+          await dispatch(checkAuth());
         } catch (error) {
           console.error("Error checking auth:", error);
         }
@@ -26,19 +26,20 @@ const NavBar = () => {
 
     checkUserAuth();
   }, [dispatch, isAuthenticated]);
+
   const handleLogout = () => {
     dispatch(logoutUser());
     navigate("/login");
   };
 
-  const NavLink = ({ href, children }) => (
-    <a
-      href={href}
+  const NavLink = ({ to, children }) => (
+    <Link
+      to={to}
       className="relative text-gray-700 hover:text-blue-600 transition-colors duration-200 py-2 px-1 group"
     >
       {children}
       <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
-    </a>
+    </Link>
   );
 
   return (
@@ -64,10 +65,10 @@ const NavBar = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <NavLink href="/">Home</NavLink>
-            <NavLink href="/products">Shop</NavLink>
-            <NavLink href="/categories">Categories</NavLink>
-            <NavLink href="/about">About</NavLink>
+            <NavLink to="/">Home</NavLink>
+            <NavLink to="/products">Shop</NavLink>
+            <NavLink to="/categories">Categories</NavLink>
+            <NavLink to="/about">About</NavLink>
           </nav>
 
           <div className="hidden md:flex items-center space-x-6">
@@ -96,12 +97,11 @@ const NavBar = () => {
                   </div>
                 </Link>
                 <div className="relative">
-                  <Link to={"/cartPage"}>
+                  <Link to="/cartPage">
                     <div className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                       <ShoppingCart className="h-6 w-6 text-gray-700 hover:text-blue-600 transition-colors duration-200" />
                     </div>
                   </Link>
-
                   <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center transform transition-transform duration-200 hover:scale-110">
                     3
                   </span>
@@ -136,30 +136,30 @@ const NavBar = () => {
       {/* Mobile menu */}
       <div className={`md:hidden ${isMobileMenuOpen ? "block" : "hidden"}`}>
         <div className="px-2 pt-2 pb-3 space-y-1">
-          <a
-            href="/"
+          <Link
+            to="/"
             className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200"
           >
             Home
-          </a>
-          <a
-            href="/products"
+          </Link>
+          <Link
+            to="/products"
             className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200"
           >
             Shop
-          </a>
-          <a
-            href="/categories"
+          </Link>
+          <Link
+            to="/categories"
             className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200"
           >
             Categories
-          </a>
-          <a
-            href="/about"
+          </Link>
+          <Link
+            to="/about"
             className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200"
           >
             About
-          </a>
+          </Link>
         </div>
       </div>
     </header>

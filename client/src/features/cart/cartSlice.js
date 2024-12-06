@@ -62,6 +62,7 @@ export const getCart = createAsyncThunk(
 export const removeFromCart = createAsyncThunk(
   "cart/removeFromCart",
   async (productId, { rejectWithValue }) => {
+    console.log("The prodyuct id in the cart in cart slice is ", productId);
     try {
       const response = await removeFromCartService(productId);
       console.log("Product removed from cart:", response);
@@ -78,6 +79,7 @@ export const updateCart = createAsyncThunk(
   "cart/updateCart",
   async ({ productId, quantity }, { rejectWithValue }) => {
     try {
+      console.log("The product Id and the quantity is", productId, quantity);
       const response = await updateCartService(productId, quantity);
       console.log("Cart updated:", response);
       return { productId, quantity, data: response?.data };

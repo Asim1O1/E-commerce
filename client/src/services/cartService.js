@@ -6,7 +6,7 @@ import axiosInstance from "../utils/axiosInstance";
 export const addToCartService = async ({ userId, productId, quantity }) => {
   try {
     const response = await axiosInstance.post(
-      `/api/cart/${userId}`,
+      `/api/cart/${userId}/`,
       {
         productId: productId,
         quantity: quantity,
@@ -25,7 +25,7 @@ export const addToCartService = async ({ userId, productId, quantity }) => {
 
 export const getCartService = async (userId) => {
   try {
-    const response = await axiosInstance.get(`/api/cart/${userId}`);
+    const response = await axiosInstance.get(`/api/cart/${userId}/`);
     console.log("Cart data retrieved successfully:", response.data);
     return response.data.Result;
   } catch (error) {
@@ -37,12 +37,8 @@ export const getCartService = async (userId) => {
 
 export const removeFromCartService = async (productId) => {
   try {
-    const response = await axiosInstance.delete(
-      `${Base_Backend_Url}/api/cart`,
-      {
-        data: { productId },
-      }
-    );
+    console.log("The product id is", productId);
+    const response = await axiosInstance.delete(`/api/cart/${productId}/`);
     console.log("Product removed from cart successfully:", response.data);
     return response.data;
   } catch (error) {
@@ -54,7 +50,8 @@ export const removeFromCartService = async (productId) => {
 
 export const updateCartService = async (productId, quantity) => {
   try {
-    const response = await axiosInstance.put(`${Base_Backend_Url}/api/cart`, {
+    console.log("The product Id and the quantity is", productId, quantity);
+    const response = await axiosInstance.put(`/api/cart/`, {
       productId,
       quantity,
     });

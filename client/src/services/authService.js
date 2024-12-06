@@ -12,15 +12,14 @@ const register = async (userData) => {
     );
     return response.data;
   } catch (error) {
+    console.log(error);
     console.error(
       "Registration error:",
       error.response?.data?.ErrorMessage || error.message
     );
-    throw (
-      error.response?.data?.ErrorMessage[0].message ||
-      error.message ||
-      "Registration failed due to internal server error"
-    );
+    const formattedError = formatError(error);
+    console.log("The fromatted error in register servvice is", formattedError);
+    throw formattedError;
   }
 };
 
@@ -62,6 +61,7 @@ const logout = async () => {
 // CHECK AUTH SERVICE
 export const checkAuth = async () => {
   try {
+    console.log("ENETERD THE CHECK AUTH SERVICE");
     const response = await axios.get(`${Base_Backend_Url}/api/auth/checkAuth`, {
       withCredentials: true,
     });

@@ -26,10 +26,10 @@ const ProductsPage = () => {
 
   const priceRanges = [
     { id: "all", name: "All Prices" },
-    { id: "under-50", name: "Under $50" },
-    { id: "50-100", name: "$50 - $100" },
-    { id: "100-200", name: "$100 - $200" },
-    { id: "over-200", name: "Over $200" },
+    { id: "under-50", name: "Under $50", min: 0, max: 50 },
+    { id: "50-100", name: "$50 - $100", min: 50, max: 100 },
+    { id: "100-200", name: "$100 - $200", min: 100, max: 200 },
+    { id: "over-200", name: "Over $200", min: 200, max: Infinity },
   ];
 
   useEffect(() => {
@@ -58,6 +58,22 @@ const ProductsPage = () => {
     }
   };
   const products = useSelector((state) => state.product.products.data);
+  console.log("The products are ", products);
+
+  const filteredProducts = products?.filter((product) => {
+    const priceRange = priceRanges.find((range) => range.id === selectedPrice);
+
+    if (priceRange?.id === "all") {
+      return true;
+    } else if (priceRange?.min !== undefined && priceRange?.max !== undefined) {
+      return product.price >= priceRange.min && product.price <= priceRange.max;
+    } else if (priceRange?.min !== undefined) {
+      return product.price >= priceRange.min;
+    }
+    return false;
+  });
+
+  console.log("The filtered products are", filteredProducts);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -66,7 +82,7 @@ const ProductsPage = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">All Products</h1>
             <p className="text-gray-600 mt-1">
-              Showing {products?.length || 0} results
+              Showing {filteredProducts?.length || 0} results
             </p>
           </div>
 
@@ -89,17 +105,6 @@ const ProductsPage = () => {
                 <List className="h-5 w-5 text-gray-600" />
               </button>
             </div>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="border rounded-lg px-4 py-2 bg-white"
-            >
-              <option value="featured">Featured</option>
-              <option value="newest">Newest</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
-            </select>
           </div>
         </div>
 
@@ -160,7 +165,7 @@ const ProductsPage = () => {
               <div className="flex justify-center items-center">
                 <ClipLoader size={50} color="#0000ff" loading={loading} />
               </div>
-            ) : (
+            ) : filteredProducts && filteredProducts.length > 0 ? (
               <div
                 className={
                   view === "grid"
@@ -168,7 +173,7 @@ const ProductsPage = () => {
                     : "space-y-4"
                 }
               >
-                {products?.map((product) => (
+                {filteredProducts.map((product) => (
                   <div
                     key={product._id}
                     className="bg-white rounded-lg shadow-sm overflow-hidden"
@@ -234,10 +239,14 @@ const ProductsPage = () => {
                   </div>
                 ))}
               </div>
+            ) : (
+              <p className="text-center text-gray-600 mt-8">
+                No products found. Please try adjusting your filters.
+              </p>
             )}
 
             {/* Pagination */}
-            <div className="mt-8 flex justify-center space-x-4">
+            <div className="mt-8 flex justify-center space-x-4 sticky bottom-0 bg-white z-10 border-t">
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 className="px-4 py-2 border rounded-md hover:bg-gray-100"

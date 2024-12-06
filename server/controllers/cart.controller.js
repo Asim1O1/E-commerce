@@ -1,6 +1,7 @@
 import Cart from "../models/cart.model.js";
 import Product from "../models/product.model.js";
 import { createResponse } from "../utils/responseHelper.js";
+import { ObjectId } from "mongodb";
 
 export const addToCart = async (req, res, next) => {
   const { productId, quantity } = req.body;
@@ -169,7 +170,9 @@ export const getCart = async (req, res) => {
 };
 
 export const removeFromCart = async (req, res) => {
-  const { productId } = req.body;
+  const productId = req.params.id;  // The product ID from the request, which is a string
+  console.log("The params is", productId);
+
   const userId = req.user.id;
 
   try {
@@ -183,9 +186,17 @@ export const removeFromCart = async (req, res) => {
         );
     }
 
-    const productExists = cart.products.some(
-      (item) => item.productId.toString() === productId
+    console.log("THE CART PRODUCTS ARE", cart.products);
+
+    // Convert productId from string to ObjectId for comparison
+    const productObjectId = new ObjectId(productId);
+    console.log("The product object id is", productObjectId);
+
+    // Check if the product exists in the cart
+    const productExists = cart.products.some((item) => 
+      item.productId.equals(productObjectId)  // Compare using ObjectId
     );
+    console.log("The product exists is", productExists);
 
     if (!productExists) {
       return res
@@ -201,7 +212,7 @@ export const removeFromCart = async (req, res) => {
 
     // Remove the product from the cart
     cart.products = cart.products.filter(
-      (item) => item.productId.toString() !== productId
+      (item) => !item.productId.equals(productObjectId) 
     );
 
     // Recalculate the total price and quantity
@@ -239,7 +250,6 @@ export const removeFromCart = async (req, res) => {
       );
   }
 };
-
 export const updateCart = async (req, res) => {
   const { productId, quantity } = req.body;
   const userId = req.user.id;

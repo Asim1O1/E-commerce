@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { GridIcon, List, Search, Star } from "lucide-react";
+import { GridIcon, List, Search } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllProducts } from "../features/products/productSlice";
+import { getAllProducts, setCategory } from "../features/products/productSlice";
 import { Link } from "react-router-dom";
 import { addToCart } from "../features/cart/cartSlice";
 import { ClipLoader } from "react-spinners";
@@ -11,18 +11,18 @@ import Pagination from "../utils/Pagination";
 const ProductsPage = () => {
   const dispatch = useDispatch();
   const [view, setView] = useState("grid");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("All"); // Default set to "All"
   const [selectedPrice, setSelectedPrice] = useState("all");
   const { pagination } = useSelector((state) => state.product.products);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { loading } = useSelector((state) => state.product);
+  const { loading, category } = useSelector((state) => state.product);
 
   const categories = [
-    { id: "all", name: "All Categories", count: 234 },
-    { id: "men", name: "Men's Wear", count: 89 },
-    { id: "women", name: "Women's Fashion", count: 103 },
-    { id: "accessories", name: "Accessories", count: 42 },
+    { id: "All", name: "All" },
+    { id: "Men's Clothes", name: "Men's Clothes" },
+    { id: "Women's Clothes", name: "Women's Clothes" },
+    { id: "Shoes", name: "Shoes" },
   ];
 
   const priceRanges = [
@@ -32,12 +32,28 @@ const ProductsPage = () => {
     { id: "100-200", name: "$100 - $200", min: 100, max: 200 },
     { id: "over-200", name: "Over $200", min: 200, max: Infinity },
   ];
+
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+
   useEffect(() => {
-    dispatch(getAllProducts({ page: currentPage, limit: 12 }));
-  }, [dispatch, currentPage]);
+    // Fetch all products or category-based products
+    dispatch(
+      getAllProducts({
+        page: currentPage,
+        limit: 12,
+        category: selectedCategory,
+      })
+    );
+  }, [dispatch, currentPage, selectedCategory]); // Add selectedCategory in the dependency array
+
+  const handleCategoryChange = (e) => {
+    const newCategory = e.target.value; // Get the value directly from the radio button
+    setSelectedCategory(newCategory); // Update local state
+    dispatch(setCategory(newCategory)); // Update Redux state
+  };
+
   const handleAddToCart = async (productId, quantity) => {
     try {
       const result = await dispatch(
@@ -45,7 +61,7 @@ const ProductsPage = () => {
       ).unwrap();
       if (result.IsSuccess || result.StatusCode === 200) {
         toast.success(
-          result.Result?.message || "Product Successfully added to cart"
+          result.Result?.message || "Product successfully added to cart"
         );
       } else {
         toast.error(
@@ -59,22 +75,25 @@ const ProductsPage = () => {
       );
     }
   };
+
   const products = useSelector((state) => state.product.products.data);
 
   const filteredProducts = products?.filter((product) => {
     const priceRange = priceRanges.find((range) => range.id === selectedPrice);
 
-    if (priceRange?.id === "all") {
-      return true;
-    } else if (priceRange?.min !== undefined && priceRange?.max !== undefined) {
-      return product.price >= priceRange.min && product.price <= priceRange.max;
-    } else if (priceRange?.min !== undefined) {
-      return product.price >= priceRange.min;
-    }
-    return false;
-  });
+    // Check if category matches or "All" is selected
+    const isCategoryMatch =
+      selectedCategory === "All" || product.category === selectedCategory;
 
-  console.log("The filtered products are", filteredProducts);
+    // Check if price matches the selected range
+    const isPriceMatch =
+      priceRange?.id === "all" ||
+      (priceRange?.min !== undefined &&
+        product.price >= priceRange.min &&
+        product.price <= priceRange.max);
+
+    return isCategoryMatch && isPriceMatch;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -130,14 +149,12 @@ const ProductsPage = () => {
                   <input
                     type="radio"
                     name="category"
-                    checked={selectedCategory === category.id}
-                    onChange={() => setSelectedCategory(category.id)}
+                    value={category.id} // Set value to category.id
+                    checked={selectedCategory === category.id} // Check if the selected category matches
+                    onChange={handleCategoryChange} // Handle the change event
                     className="text-blue-600 cursor-pointer"
                   />
                   <span className="ml-2 text-gray-600">{category.name}</span>
-                  <span className="ml-auto text-gray-400 text-sm">
-                    ({category.count})
-                  </span>
                 </label>
               ))}
             </div>
@@ -146,7 +163,7 @@ const ProductsPage = () => {
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <h2 className="font-semibold text-gray-900 mb-4">Price Range</h2>
               {priceRanges.map((range) => (
-                <label key={range.id} className="flex items-center ">
+                <label key={range.id} className="flex items-center">
                   <input
                     type="radio"
                     name="price"
@@ -206,23 +223,6 @@ const ProductsPage = () => {
                         <h3 className="font-medium text-gray-900">
                           {product.name}
                         </h3>
-                        <div className="flex items-center mt-2">
-                          <div className="flex items-center">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 ${
-                                  i < Math.floor(product.rating)
-                                    ? "text-yellow-400 fill-current"
-                                    : "text-gray-300"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="ml-2 text-sm text-gray-600">
-                            ({product.reviews})
-                          </span>
-                        </div>
                         <div className="mt-4 flex items-center justify-between">
                           <span className="text-lg font-bold text-gray-900">
                             ${product.price}
@@ -230,7 +230,6 @@ const ProductsPage = () => {
                         </div>
                       </div>
                     </Link>
-
                     <button
                       onClick={() => handleAddToCart(product._id, 1)}
                       className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"

@@ -87,8 +87,34 @@ export const createProduct = async (req, res) => {
 
 export const getAllProduct = async (req, res) => {
   try {
+    // Destructure query params
     const { page = 1, limit = 10, category } = req.query;
-    const filter = category ? { category } : {}; // Apply category filter if present
+
+    // Validate category if it's provided
+    const validCategories = [
+      "Men's Clothes",
+      "Women's Clothes",
+      "Shoes",
+      "All",
+    ];
+
+    // Check if the provided category is valid
+    if (category && !validCategories.includes(category)) {
+      return res.status(400).json({
+        statusCode: 400,
+        IsSuccess: false,
+        Result: null,
+        ErrorMessage: [{ message: "Invalid category provided" }],
+      });
+    }
+
+    // Build filter object based on category if provided
+    let filter = {};
+    if (category && category !== "All") {
+      filter = { category };
+    }
+
+    // Get paginated products with category filter
     const paginatedProducts = await paginate(
       Product,
       filter,
@@ -96,14 +122,15 @@ export const getAllProduct = async (req, res) => {
       parseInt(limit)
     );
 
+    // Send successful response
     return res.status(200).json({
       statusCode: 200,
       IsSuccess: true,
       Result: {
-        data: paginatedProducts.data, // Products data
-        pagination: paginatedProducts.pagination, // Pagination metadata
+        data: paginatedProducts.data,
+        pagination: paginatedProducts.pagination,
       },
-      ErrorMessage: [], // Empty array if no errors
+      ErrorMessage: [],
     });
   } catch (error) {
     console.error("Error:", error.message);

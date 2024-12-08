@@ -150,7 +150,8 @@ const AdminProducts = () => {
       );
       const response = await dispatch(
         updateProduct({ productId, newProductData })
-      );
+      ).unwrap();
+      console.log("The response is", response)
       if (response.payload.StatusCode === 200) {
         dispatch(getAllProducts({ page: 1, limit: 10, category: "" }));
         toast.success("Product updated successfully!");

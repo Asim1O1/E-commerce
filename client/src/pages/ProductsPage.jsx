@@ -11,7 +11,7 @@ import Pagination from "../utils/Pagination";
 const ProductsPage = () => {
   const dispatch = useDispatch();
   const [view, setView] = useState("grid");
-  const [selectedCategory, setSelectedCategory] = useState("All"); // Default set to "All"
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedPrice, setSelectedPrice] = useState("all");
   const { pagination } = useSelector((state) => state.product.products);
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,7 +38,7 @@ const ProductsPage = () => {
   };
 
   useEffect(() => {
-    // Fetch all products or category-based products
+   
     dispatch(
       getAllProducts({
         page: currentPage,
@@ -46,12 +46,12 @@ const ProductsPage = () => {
         category: selectedCategory,
       })
     );
-  }, [dispatch, currentPage, selectedCategory]); // Add selectedCategory in the dependency array
+  }, [dispatch, currentPage, selectedCategory]);
 
   const handleCategoryChange = (e) => {
-    const newCategory = e.target.value; // Get the value directly from the radio button
-    setSelectedCategory(newCategory); // Update local state
-    dispatch(setCategory(newCategory)); // Update Redux state
+    const newCategory = e.target.value;
+    setSelectedCategory(newCategory);
+    dispatch(setCategory(newCategory));
   };
 
   const handleAddToCart = async (productId, quantity) => {
@@ -81,11 +81,9 @@ const ProductsPage = () => {
   const filteredProducts = products?.filter((product) => {
     const priceRange = priceRanges.find((range) => range.id === selectedPrice);
 
-    // Check if category matches or "All" is selected
     const isCategoryMatch =
       selectedCategory === "All" || product.category === selectedCategory;
 
-    // Check if price matches the selected range
     const isPriceMatch =
       priceRange?.id === "all" ||
       (priceRange?.min !== undefined &&
@@ -149,9 +147,9 @@ const ProductsPage = () => {
                   <input
                     type="radio"
                     name="category"
-                    value={category.id} // Set value to category.id
-                    checked={selectedCategory === category.id} // Check if the selected category matches
-                    onChange={handleCategoryChange} // Handle the change event
+                    value={category.id} 
+                    checked={selectedCategory === category.id} 
+                    onChange={handleCategoryChange} 
                     className="text-blue-600 cursor-pointer"
                   />
                   <span className="ml-2 text-gray-600">{category.name}</span>

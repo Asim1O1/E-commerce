@@ -80,12 +80,12 @@ const productSlice = createSlice({
     product: null, // Single product fetched by getSingleProduct
     loading: false,
     error: null,
-    category: "",
+    category: ''
   },
   reducers: {
     setCategory: (state, action) => {
-      console.log("The action paylaod in category is", action.payload);
-      state.category = action.payload; // Update selected category
+      console.log("The action paylaod in category is", action.payload)
+      state.category = action.payload;  // Update selected category
     },
   },
   extraReducers: (builder) => {

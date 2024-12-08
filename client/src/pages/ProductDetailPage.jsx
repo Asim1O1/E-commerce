@@ -7,10 +7,13 @@ import {
   ZoomIn,
   Truck,
   RotateCcw,
+  Link,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSingleProduct } from "../features/products/productSlice";
 import { useParams } from "react-router-dom";
+import { addToCart, getCart, updateCart } from "../features/cart/cartSlice";
+import { toast } from "react-toastify";
 
 const ProductDetailPage = () => {
   const dispatch = useDispatch();
@@ -19,7 +22,6 @@ const ProductDetailPage = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       if (id) {
-        console.log("ENTERED THE GET SINGLE PRODUCT");
         await dispatch(getSingleProduct({ id }));
       }
     };
@@ -29,7 +31,7 @@ const ProductDetailPage = () => {
 
   const [quantity, setQuantity] = useState(1);
   const [selectedTab, setSelectedTab] = useState("description");
-  const product = useSelector((state) => state.product.product);
+  const product = useSelector((state) => state?.product?.product);
 
   if (!product) {
     return (
@@ -38,6 +40,65 @@ const ProductDetailPage = () => {
       </div>
     );
   }
+
+  const handleAddToCart = async (productId, quantity) => {
+    try {
+      const result = await dispatch(
+        addToCart({ productId, quantity })
+      ).unwrap();
+      if (result.IsSuccess || result.StatusCode === 200) {
+        toast.success(
+          result.Result?.message || "Product successfully added to cart"
+        );
+      } else {
+        toast.error(
+          result.ErrorMessage[0].message || "SERVER ERROR: Couldn't add product"
+        );
+      }
+    } catch (error) {
+      toast.error(
+        error.message ||
+          "An unexpected error occurred while adding product to cart"
+      );
+    }
+  };
+  const handleQuantityChange = async (productId, newQuantity) => {
+    if (newQuantity <= 0) return;
+
+    console.log("The product id and quantity", productId, newQuantity);
+
+    try {
+      await dispatch(updateCart({ productId, quantity: newQuantity })).unwrap();
+
+      await dispatch(getCart()).unwrap();
+
+      // Show success notification
+      toast.success(`The quantity has been updated to ${newQuantity}.`, {
+        position: "top-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } catch (error) {
+      // Show error notification
+      toast.error(
+        "There was an issue updating the quantity. Please try again.",
+        {
+          position: "top-right",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        }
+      );
+      console.error("Error updating quantity:", error);
+    }
+  };
 
   // const [selectedSize, setSelectedSize] = useState("");
   // const [selectedColor, setSelectedColor] = useState("");
@@ -168,7 +229,12 @@ const ProductDetailPage = () => {
                 <h3 className="text-sm font-medium text-gray-900">Quantity</h3>
                 <div className="flex items-center space-x-4 mt-2">
                   <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    onClick={() =>
+                      handleQuantityChange(
+                        product.Result._id,
+                        product.Result?.quantity - 1
+                      )
+                    }
                     className="p-2 border rounded-md"
                   >
                     -
@@ -177,7 +243,12 @@ const ProductDetailPage = () => {
                     {quantity}
                   </span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() =>
+                      handleQuantityChange(
+                        product.Result._id,
+                        product.Result?.quantity + 1
+                      )
+                    }
                     className="p-2 border rounded-md"
                   >
                     +
@@ -186,13 +257,16 @@ const ProductDetailPage = () => {
               </div>
 
               <div className="flex space-x-4">
-                <button className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
+                <button
+                  onClick={() => handleAddToCart(product?.Result?._id, 1)}
+                  className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                >
                   <ShoppingCart className="h-5 w-5" />
                   <span>Add to Cart</span>
                 </button>
-                <button className="flex-1 bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
-                  Buy Now
-                </button>
+                <Link> <button className="flex-1 bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
+                 Buy Now
+                </button> </Link> 
               </div>
 
               <div className="border-t pt-6 space-y-4">

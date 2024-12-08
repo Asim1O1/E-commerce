@@ -5,7 +5,7 @@ import {
   updateCartService,
 } from "../../services/cartService";
 import cartService from "../../services/cartService";
-import { CloudLightning } from "lucide-react";
+
 
 // Async thunks for cart operations
 

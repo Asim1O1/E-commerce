@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
-import NavBar from "../components/common/NavBar";
+
 import Footer from "../components/common/Footer";
 const EcommercePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);

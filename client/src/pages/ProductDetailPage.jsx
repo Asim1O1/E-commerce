@@ -7,17 +7,23 @@ import {
   ZoomIn,
   Truck,
   RotateCcw,
-  Link,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSingleProduct } from "../features/products/productSlice";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { addToCart, getCart, updateCart } from "../features/cart/cartSlice";
 import { toast } from "react-toastify";
+import OrderForm from "../components/OrderForm";
 
 const ProductDetailPage = () => {
   const dispatch = useDispatch();
   const { id } = useParams();
+
+  const [showOrderForm, setShowOrderForm] = useState(false);
+
+  const closeShowOrderForm = () => {
+    setShowOrderForm(false);
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -184,46 +190,6 @@ const ProductDetailPage = () => {
                 <p className="text-green-600 text-sm">In stock</p>
               </div>
 
-              {/* Color Selection */}
-              {/* <div>
-              <h3 className="text-sm font-medium text-gray-900">Color</h3>
-              <div className="grid grid-cols-4 gap-4 mt-2">
-                {product.colors.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={`px-4 py-2 border rounded-md text-sm ${
-                      selectedColor === color
-                        ? "border-blue-500 text-blue-500"
-                        : "border-gray-200 text-gray-700"
-                    }`}
-                  >
-                    {color}
-                  </button>
-                ))}
-              </div>
-            </div> */}
-
-              {/* Size Selection */}
-              {/* <div>
-              <h3 className="text-sm font-medium text-gray-900">Size</h3>
-              <div className="grid grid-cols-5 gap-4 mt-2">
-                {product.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`px-4 py-2 border rounded-md text-sm ${
-                      selectedSize === size
-                        ? "border-blue-500 text-blue-500"
-                        : "border-gray-200 text-gray-700"
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div> */}
-
               {/* Quantity */}
               <div>
                 <h3 className="text-sm font-medium text-gray-900">Quantity</h3>
@@ -264,9 +230,15 @@ const ProductDetailPage = () => {
                   <ShoppingCart className="h-5 w-5" />
                   <span>Add to Cart</span>
                 </button>
-                <Link> <button className="flex-1 bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
-                 Buy Now
-                </button> </Link> 
+                <button
+                  onClick={() => setShowOrderForm(true)}
+                  className="flex-1 bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  Buy Now
+                </button>
+                {showOrderForm && (
+                  <OrderForm onClose={closeShowOrderForm}></OrderForm>
+                )}
               </div>
 
               <div className="border-t pt-6 space-y-4">
@@ -346,38 +318,6 @@ const ProductDetailPage = () => {
               )}
             </div>
           </div>
-
-          {/* Related Products */}
-          {/* <div className="mt-16">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">
-              You may also like
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {relatedProducts.map((product, index) => (
-                <div key={index} className="border rounded-lg p-4">
-                  <div className="aspect-square bg-gray-100 rounded-lg mb-4">
-                    <img
-                      src="/api/placeholder/200/200"
-                      alt={product.name}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  </div>
-                  <h3 className="text-gray-900 font-medium">{product.name}</h3>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-gray-900 font-bold">
-                      ${product.price}
-                    </span>
-                    <div className="flex items-center">
-                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span className="ml-1 text-sm text-gray-600">
-                        {product.rating}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div> */}
         </div>
       </div>
     </>

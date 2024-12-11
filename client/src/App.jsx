@@ -24,6 +24,7 @@ import ShopPage from "./pages/ShopPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import UnauthPage from "./pages/UnAuthPage.jsx";
 import OrderForm from "./components/OrderForm.jsx";
+import UserProfile from "./components/auth/UserProfile.jsx";
 
 function App() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -53,6 +54,7 @@ function App() {
             <Route path="productDetail/:id" element={<ProductDetailPage />} />
             <Route path="about" element={<AboutPage />} />
             <Route path="orderForm" element={<OrderForm />} />
+            <Route path="userProfile" element={<UserProfile />} />
 
             <Route path="shopPage" element={<ShopPage />} />
             <Route path="cartPage" element={<CartPage />} />

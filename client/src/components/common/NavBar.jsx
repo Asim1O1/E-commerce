@@ -91,7 +91,7 @@ const NavBar = () => {
 
             {isAuthenticated ? (
               <>
-                <Link to="/profile">
+                <Link to="/userProfile">
                   <div className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                     <User className="h-6 w-6 text-gray-700 hover:text-blue-600 transition-colors duration-200" />
                   </div>

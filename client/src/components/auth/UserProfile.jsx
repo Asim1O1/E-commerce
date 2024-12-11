@@ -1,19 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserProfile } from "../../features/user/userSlice";
 
 const UserProfile = () => {
+  const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState(false);
-  const [userDetails, setUserDetails] = useState({
-    fullName: "Alex Johnson",
-    userName: "alexjohnson",
-    email: "alex.johnson@example.com",
-    address: "456 Tech Lane, Silicon Valley, CA 94000",
-  });
+
+  useEffect(() => {
+    dispatch(getUserProfile());
+  }, [dispatch]);
+
+  const userDetails = useSelector((state) => state?.userProfile?.user);
 
   const [formData, setFormData] = useState({
-    fullName: userDetails.fullName,
-    userName: userDetails.userName,
-    address: userDetails.address,
+    fullName: "",
+    userName: "",
+    address: "",
   });
+
+  // Update formData when userDetails is fetched
+  useEffect(() => {
+    if (userDetails) {
+      setFormData({
+        fullName: userDetails.fullName || "",
+        userName: userDetails.userName || "",
+        address: userDetails.address || "",
+      });
+    }
+  }, [userDetails]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -24,12 +38,15 @@ const UserProfile = () => {
   };
 
   const handleSave = () => {
-    setUserDetails((prev) => ({
-      ...prev,
-      ...formData,
-    }));
+    // Dispatch an action to save the updated user details
+    // Example: dispatch(updateUserProfile(formData));
+    console.log("Updated Data:", formData);
     setIsEditing(false);
   };
+
+  if (!userDetails) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-md">
@@ -39,14 +56,14 @@ const UserProfile = () => {
           <div className="flex items-center">
             <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mr-4">
               <span className="text-2xl font-bold text-gray-600">
-                {userDetails.fullName.charAt(0)}
+                {userDetails?.fullName?.charAt(0)}
               </span>
             </div>
             <div>
               <h2 className="text-xl font-semibold text-gray-800">
-                {userDetails.fullName}
+                {userDetails?.fullName}
               </h2>
-              <p className="text-gray-500 text-sm">@{userDetails.userName}</p>
+              <p className="text-gray-500 text-sm">@{userDetails?.userName}</p>
             </div>
           </div>
         </div>
@@ -94,23 +111,23 @@ const UserProfile = () => {
                 <span className="text-gray-600 text-sm block mb-1">
                   Full Name
                 </span>
-                <p className="text-gray-800">{userDetails.fullName}</p>
+                <p className="text-gray-800">{userDetails?.fullName}</p>
               </div>
               <div className="bg-gray-50 p-3 rounded-md">
                 <span className="text-gray-600 text-sm block mb-1">
                   Username
                 </span>
-                <p className="text-gray-800">@{userDetails.userName}</p>
+                <p className="text-gray-800">@{userDetails?.userName}</p>
               </div>
               <div className="bg-gray-50 p-3 rounded-md">
                 <span className="text-gray-600 text-sm block mb-1">Email</span>
-                <p className="text-gray-800">{userDetails.email}</p>
+                <p className="text-gray-800">{userDetails?.email}</p>
               </div>
               <div className="bg-gray-50 p-3 rounded-md">
                 <span className="text-gray-600 text-sm block mb-1">
                   Address
                 </span>
-                <p className="text-gray-800">{userDetails.address}</p>
+                <p className="text-gray-800">{userDetails?.address}</p>
               </div>
             </div>
           )}

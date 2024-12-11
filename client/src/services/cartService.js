@@ -1,5 +1,3 @@
-import axios from "axios";
-import { Base_Backend_Url } from "../constants";
 import formatError from "../utils/errorUtils";
 import axiosInstance from "../utils/axiosInstance";
 

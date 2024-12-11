@@ -1,102 +1,72 @@
-import { createResponse } from "../utils/responseHelper.js";
 import Order from "../models/order.model.js";
+import Cart from "../models/cart.model.js";
 import Product from "../models/product.model.js";
-import mongoose from "mongoose";
 
-export const createOrder = async (req, res, next) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+export const createOrder = async (req, res) => {
+  const { cartId, buyNowProductId, buyNowQuantity, paymentDetails } = req.body;
+
   try {
-    const userId = req.user.id;
-    console.log("The user id is", userId);
-    const { products, totalPrice, paymentDetails } = req.body;
+    let products = [];
+    let totalAmount = 0;
 
-    if (!userId || !products || !totalPrice || !paymentDetails) {
-      return res
-        .status(400)
-        .json(createResponse(400, false, "All fields are required!"));
-    }
+    if (cartId) {
+      // Add to Cart + Checkout Workflow
+      const cart = await Cart.findById(cartId).populate("products.productId");
+      if (!cart) {
+        return res.status(404).json({ message: "Cart not found" });
+      }
 
-    for (let item of products) {
-      const product = await Product.findById(item.productId);
+      products = cart.products.map((item) => ({
+        productId: item.productId._id,
+        quantity: item.quantity,
+        price: item.productId.price,
+      }));
 
+      totalAmount = products.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
+    } else if (buyNowProductId && buyNowQuantity) {
+      // Buy Now Workflow
+      const product = await Product.findById(buyNowProductId);
       if (!product) {
-        return res
-          .status(400)
-          .json(createResponse(400, false, `Product does not exist.`));
+        return res.status(404).json({ message: "Product not found" });
       }
 
-      if (product.stock === 0) {
-        return res
-          .status(400)
-          .json(
-            createResponse(
-              400,
-              false,
-              `Product ${product.name} is out of stock.`
-            )
-          );
-      }
+      products = [
+        {
+          productId: product._id,
+          quantity: buyNowQuantity,
+          price: product.price,
+        },
+      ];
 
-      if (product.stock < item.quantity) {
-        return res
-          .status(400)
-          .json(
-            createResponse(
-              400,
-              false,
-              `Insufficient stock for product ${product.name}. Only ${product.stock} items left.`
-            )
-          );
-      }
-
-      product.stock -= item.quantity;
-      await product.save();
+      totalAmount = product.price * buyNowQuantity;
+    } else {
+      return res.status(400).json({ message: "Invalid order request" });
     }
 
+    // Save the order
     const order = new Order({
-      userId,
+      userId: req.user._id,
       products,
-      totalPrice,
+      totalAmount,
       paymentDetails,
+      stripeSessionId: paymentDetails?.stripeSessionId || null,
     });
 
-    const savedOrder = await order.save();
+    await order.save();
 
-    await session.commitTransaction();
+    // Optionally clear cart if used
+    if (cartId) {
+      await Cart.findByIdAndDelete(cartId);
+    }
+
     return res
       .status(201)
-      .json(
-        createResponse(201, true, [], "Order created successfully", savedOrder)
-      );
+      .json({ message: "Order created successfully", order });
   } catch (error) {
-    await session.abortTransaction();
-    console.error("Error:", error.message);
-    if (error.stack) {
-      console.error("Stack trace:", error.stack);
-    }
-
-    if (error.isJoi) {
-      return res
-        .status(400)
-        .json(
-          createResponse(400, false, [
-            `Validation error: ${error.details[0].message}`,
-          ])
-        );
-    }
-
-    return res
-      .status(500)
-      .json(
-        createResponse(
-          500,
-          false,
-          ["Server error: Unable to create order"],
-          error.message
-        )
-      );
-  } finally {
-    session.endSession();
+    console.error("Error creating order:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };

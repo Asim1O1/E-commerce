@@ -87,9 +87,8 @@ export const userLogin = async (req, res, next) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 30 * 60 * 1000,
-      
     });
-    console.log("cookiee set succesfyll")
+    console.log("cookiee set succesfyll");
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
@@ -97,7 +96,7 @@ export const userLogin = async (req, res, next) => {
       sameSite: "strict",
       maxAge: 24 * 60 * 60 * 1000,
     });
-    console.log("refresh token set successful")
+    console.log("refresh token set successful");
 
     return res.status(200).json(
       createResponse(200, true, [], {
@@ -140,5 +139,66 @@ export const userLogout = async (req, res, next) => {
   } catch (error) {
     console.error("Error during logout:", error);
     next(error);
+  }
+};
+
+export const getUserProfile = async (req, res, next) => {
+  try {
+    // Fetch the user, excluding the password field
+    const user = await User.findById(req.user.userId).select("-password");
+
+    if (!user) {
+      return res
+        .status(404)
+        .json(createResponse(404, false, "User not found", null));
+    }
+
+    const userObject = user.toObject();
+
+    return res.status(200).json(
+      createResponse(200, true, [], "User data fetched successfully", {
+        user_data: userObject,
+      })
+    );
+  } catch (error) {
+    console.error("Error while fetching user profile:", error);
+    next(error); // Pass the error to the next middleware
+  }
+};
+
+export const updateUserProfile = async (req, res, next) => {
+  const { fullName, email, address, userName } = req.body;
+
+  try {
+    const user = await User.findById(req.user.userId);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json(createResponse(404, false, "User not found", null));
+    }
+
+    // Prevent email from being updated
+    if (email) {
+      return res
+        .status(400)
+        .json(createResponse(400, false, "Email cannot be updated", null));
+    }
+
+    if (fullName) user.fullName = fullName;
+    if (address) user.address = address;
+    if (userName) user.userName = userName;
+
+    await user.save();
+
+    // Send success response
+    return res.status(200).json(
+      createResponse(200, true, "User profile updated successfully", {
+        user_data: user,
+      })
+    );
+  } catch (error) {
+    console.error("Error while updating user profile:", error);
+    next(error); // Pass the error to the next middleware
   }
 };

@@ -4,6 +4,8 @@ import {
   userRegister,
   userLogin,
   userLogout,
+  getUserProfile,
+  updateUserProfile,
 } from "../controllers/user.controller.js";
 import protectRoute from "../middlewares/protectRoute.js";
 import refreshAccessToken from "../utils/refreshAccessToken.js";
@@ -16,12 +18,12 @@ const router = express.Router();
 router.post("/register", userRegister);
 router.post("/login", userLogin);
 router.post("/logout", userLogout);
+router.get("/userProfile", protectRoute, getUserProfile);
+router.post("/userProfile", protectRoute, updateUserProfile);
 router.post("/refresh-token", refreshAccessToken);
 router.get("/checkAuth", protectRoute, async (req, res) => {
-  console.log("ENETERD THE CHECK AUTH");
   try {
     const user = req.user;
-    console.log("tHE USER ISn check auth is", user);
 
     if (!user) {
       return res

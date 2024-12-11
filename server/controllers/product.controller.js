@@ -219,10 +219,8 @@ export const updateProduct = async (req, res) => {
 };
 
 // DELETE A PRODUCT
-
 export const deleteProduct = async (req, res) => {
   try {
-    console.log("HIT THE DELETE API");
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {

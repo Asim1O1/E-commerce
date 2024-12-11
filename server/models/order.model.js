@@ -7,21 +7,17 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    cartId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Cart",
-      required: true,
-    },
-    quantity: {
-      type: Number,
-      required: true,
-      min: 1,
-    },
-    price: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
+    products: [
+      {
+        productId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        quantity: { type: Number, required: true, min: 1 },
+        price: { type: Number, required: true }, // Track individual product price
+      },
+    ],
     totalAmount: {
       type: Number,
       required: true,

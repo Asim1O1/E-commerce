@@ -145,7 +145,8 @@ export const userLogout = async (req, res, next) => {
 export const getUserProfile = async (req, res, next) => {
   try {
     // Fetch the user, excluding the password field
-    const user = await User.findById(req.user.userId).select("-password");
+
+    const user = await User.findById(req.user._id).select("-password");
 
     if (!user) {
       return res
@@ -156,13 +157,14 @@ export const getUserProfile = async (req, res, next) => {
     const userObject = user.toObject();
 
     return res.status(200).json(
-      createResponse(200, true, [], "User data fetched successfully", {
+      createResponse(200, true, [], {
+        message: "User data fetched successfully",
         user_data: userObject,
       })
     );
   } catch (error) {
     console.error("Error while fetching user profile:", error);
-    next(error); // Pass the error to the next middleware
+    next(error);
   }
 };
 

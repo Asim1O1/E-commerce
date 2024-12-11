@@ -4,8 +4,6 @@ import {
   userRegister,
   userLogin,
   userLogout,
-  getUserProfile,
-  updateUserProfile,
 } from "../controllers/user.controller.js";
 import protectRoute from "../middlewares/protectRoute.js";
 import refreshAccessToken from "../utils/refreshAccessToken.js";
@@ -18,8 +16,7 @@ const router = express.Router();
 router.post("/register", userRegister);
 router.post("/login", userLogin);
 router.post("/logout", userLogout);
-router.get("/userProfile", protectRoute, getUserProfile);
-router.post("/userProfile", protectRoute, updateUserProfile);
+
 router.post("/refresh-token", refreshAccessToken);
 router.get("/checkAuth", protectRoute, async (req, res) => {
   try {

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserProfile } from "../../features/user/userSlice";
+import {
+  getUserProfile,
+  updateUserProfile,
+} from "../../features/user/userSlice";
 
 const UserProfile = () => {
   const dispatch = useDispatch();
@@ -37,9 +40,11 @@ const UserProfile = () => {
     }));
   };
 
-  const handleSave = () => {
-    // Dispatch an action to save the updated user details
-    // Example: dispatch(updateUserProfile(formData));
+  const handleSave = async () => {
+    const response = await dispatch(updateUserProfile(formData)).unwrap();
+    console.log("The response is", response);
+    setIsEditing(false);
+    dispatch(getUserProfile());
     console.log("Updated Data:", formData);
     setIsEditing(false);
   };

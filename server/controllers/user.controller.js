@@ -172,7 +172,7 @@ export const updateUserProfile = async (req, res, next) => {
   const { fullName, email, address, userName } = req.body;
 
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await User.findById(req.user._id);
 
     if (!user) {
       return res

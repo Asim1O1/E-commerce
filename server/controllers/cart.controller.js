@@ -7,9 +7,6 @@ export const addToCart = async (req, res, next) => {
   const { productId, quantity } = req.body;
   const { id } = req.params;
 
-  console.log("Received userId from params:", id); // Log to check if id is correct
-  console.log("Received productId and quantity:", productId, quantity);
-
   if (!productId || !quantity) {
     return res
       .status(400)
@@ -170,7 +167,7 @@ export const getCart = async (req, res) => {
 };
 
 export const removeFromCart = async (req, res) => {
-  const productId = req.params.id;  // The product ID from the request, which is a string
+  const productId = req.params.id; // The product ID from the request, which is a string
   console.log("The params is", productId);
 
   const userId = req.user.id;
@@ -193,8 +190,8 @@ export const removeFromCart = async (req, res) => {
     console.log("The product object id is", productObjectId);
 
     // Check if the product exists in the cart
-    const productExists = cart.products.some((item) => 
-      item.productId.equals(productObjectId)  // Compare using ObjectId
+    const productExists = cart.products.some(
+      (item) => item.productId.equals(productObjectId) // Compare using ObjectId
     );
     console.log("The product exists is", productExists);
 
@@ -212,7 +209,7 @@ export const removeFromCart = async (req, res) => {
 
     // Remove the product from the cart
     cart.products = cart.products.filter(
-      (item) => !item.productId.equals(productObjectId) 
+      (item) => !item.productId.equals(productObjectId)
     );
 
     // Recalculate the total price and quantity
